@@ -113,6 +113,7 @@
     <input class="search" id="search" type="search" placeholder="キーワードで絞り込み（例: 記録 消えた）" aria-label="キーワード検索">
     <div class="chips" id="source-chips" role="group" aria-label="ソースで絞り込み"></div>
     <div class="chips" id="rating-chips" role="group" aria-label="評価で絞り込み"></div>
+    <div class="chips" id="version-chips" role="group" aria-label="バージョンで絞り込み"></div>
   </div>
 
   <div id="list"></div>
@@ -125,8 +126,16 @@ const PAGE_SIZE = 200;
 let items = [];
 let sourceFilter = "all";
 let selectedRatings = new Set(); // 空 = 全評価
+let selectedVersions = new Set(); // 空 = 全バージョン
 let query = "";
 let shown = PAGE_SIZE;
+
+// "4.16"(iOS) と "4.16.0"(Android) を同じリリースに束ねる
+const verKey = d => {
+  const v = (d.version || "").trim();
+  if (!v) return "不明";
+  return v.split(".").slice(0, 2).join(".");
+};
 
 const esc = s => (s || "").replace(/[&<>"']/g, c =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -138,6 +147,7 @@ function filtered() {
   return items.filter(d => {
     if (sourceFilter !== "all" && d.source !== sourceFilter) return false;
     if (selectedRatings.size && !selectedRatings.has(d.rating)) return false;
+    if (selectedVersions.size && !selectedVersions.has(verKey(d))) return false;
     if (words.length) {
       const text = ((d.title || "") + " " + (d.body || "") + " " + (d.author || "")).toLowerCase();
       if (!words.every(w => text.includes(w))) return false;
@@ -181,6 +191,34 @@ function renderChips() {
       render();
     };
     rtWrap.appendChild(b);
+  }
+
+  const verCounts = {};
+  for (const d of items) verCounts[verKey(d)] = (verCounts[verKey(d)] || 0) + 1;
+  const versions = Object.keys(verCounts).sort((a, b) => {
+    if (a === "不明") return 1;
+    if (b === "不明") return -1;
+    return b.localeCompare(a, undefined, { numeric: true });
+  });
+  const vWrap = document.getElementById("version-chips");
+  vWrap.innerHTML = "";
+  const vAll = document.createElement("button");
+  vAll.className = "chip";
+  vAll.textContent = "全バージョン";
+  vAll.setAttribute("aria-pressed", String(selectedVersions.size === 0));
+  vAll.onclick = () => { selectedVersions.clear(); shown = PAGE_SIZE; render(); };
+  vWrap.appendChild(vAll);
+  for (const v of versions) {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = (v === "不明" ? v : `v${v}`) + ` ${verCounts[v]}`;
+    b.setAttribute("aria-pressed", String(selectedVersions.has(v)));
+    b.onclick = () => {
+      selectedVersions.has(v) ? selectedVersions.delete(v) : selectedVersions.add(v);
+      shown = PAGE_SIZE;
+      render();
+    };
+    vWrap.appendChild(b);
   }
 }
 
