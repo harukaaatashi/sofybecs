@@ -8,7 +8,7 @@
 import sys
 import traceback
 
-from . import config, filter as flt, slack, state as state_mod
+from . import config, filter as flt, slack, state as state_mod, store
 from .models import Item
 from .sources import app_store, google_play, x_search
 
@@ -20,6 +20,7 @@ def _dedupe_new(items: list[Item], seen_ids: list[str]) -> list[Item]:
 
 def run() -> int:
     state = state_mod.load()
+    collected: list[Item] = []
     to_post: list[Item] = []
     errors: list[str] = []
 
@@ -38,6 +39,7 @@ def run() -> int:
         if first_run:
             new_items = new_items[-config.FIRST_RUN_POSTS_PER_SOURCE :]
         src_state["seen_ids"].extend(i.id for i in items)
+        collected.extend(items)
         to_post.extend(new_items)
         print(f"[{name}] 取得 {len(items)} 件 / 新着 {len(new_items)} 件"
               + ("（初回のため直近のみ通知）" if first_run else ""))
@@ -49,6 +51,7 @@ def run() -> int:
             items, newest_id = x_search.fetch(since_id=x_state.get("since_id"))
             new_items = _dedupe_new(items, x_state["seen_ids"])
             new_items = flt.filter_x_items(new_items)
+            collected.extend(new_items)
             new_items.reverse()
             x_state["seen_ids"].extend(i.id for i in items)
             if newest_id:
@@ -60,12 +63,20 @@ def run() -> int:
     else:
         print("[x] X_BEARER_TOKEN 未設定のためスキップ")
 
-    # --- Slack通知 ---
-    if len(to_post) > config.MAX_POSTS_PER_RUN:
-        print(f"[slack] {len(to_post)} 件中 {config.MAX_POSTS_PER_RUN} 件のみ通知（上限）")
-        to_post = to_post[-config.MAX_POSTS_PER_RUN :]
-    slack.post(to_post)
-    print(f"[slack] {len(to_post)} 件通知")
+    # --- 蓄積と一覧生成 ---
+    data = store.merge(collected)
+    store.write_markdown(data)
+    print(f"[store] 累計 {len(data)} 件を {store.DATA_FILE} / {store.REVIEWS_MD} に反映")
+
+    # --- Slack通知（Webhook設定時のみ） ---
+    if config.SLACK_WEBHOOK_URL or config.DRY_RUN:
+        if len(to_post) > config.MAX_POSTS_PER_RUN:
+            print(f"[slack] {len(to_post)} 件中 {config.MAX_POSTS_PER_RUN} 件のみ通知（上限）")
+            to_post = to_post[-config.MAX_POSTS_PER_RUN :]
+        slack.post(to_post)
+        print(f"[slack] {len(to_post)} 件通知")
+    else:
+        print(f"[slack] SLACK_WEBHOOK_URL 未設定のためスキップ（新着 {len(to_post)} 件は一覧に反映済み）")
 
     state_mod.save(state)
 
