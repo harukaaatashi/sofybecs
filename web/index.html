@@ -25,15 +25,27 @@
     line-height: 1.7;
     overflow-wrap: anywhere;
   }
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .site-header .wrap { padding-top: 0; padding-bottom: 0; }
+  h1 { font-size: 20px; margin: 0; }
+
   .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 16px 64px; }
-  h1 { font-size: 20px; margin: 0 0 16px; }
 
   .layout { display: flex; gap: 32px; align-items: flex-start; }
   .sidebar {
     flex: 0 0 260px;
     position: sticky;
-    top: 0;
-    max-height: 100vh;
+    top: 64px;
+    max-height: calc(100vh - 64px);
     overflow-y: auto;
     padding: 24px 4px 24px 0;
     display: flex;
@@ -63,9 +75,11 @@
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 
   @media (max-width: 768px) {
+    .site-header { height: 56px; }
     .layout { flex-direction: column; }
     .sidebar {
       position: static;
+      top: auto;
       flex-basis: auto;
       width: 100%;
       max-height: none;
@@ -143,9 +157,12 @@
 </style>
 </head>
 <body>
+<header class="site-header">
+  <div class="wrap">
+    <h1>ソフィBe 口コミ一覧</h1>
+  </div>
+</header>
 <div class="wrap">
-  <h1>ソフィBe 口コミ一覧</h1>
-
   <div class="layout">
     <aside class="sidebar">
       <div class="filter-group">
