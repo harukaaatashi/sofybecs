@@ -1,6 +1,6 @@
 # ソフィBe 口コミ一覧
 
-全 208 件（App Store 108件 / Google Play 100件）・最新の口コミ日: 2026-07-04
+全 209 件（App Store 109件 / Google Play 100件）・最新の口コミ日: 2026-07-04
 
 ※ 表示は直近 300 件まで。全件は [`data/items.json`](data/items.json) にあります。
 
@@ -13,6 +13,10 @@
   > 不安なことも相談できてよく使ってる！
 
 ## 2026-07-02
+
+- **App Store** ★★★★★ v4.16 msmtk5 — とても使いやすいです！ [↗](https://apps.apple.com/jp/app/id6480158120?see-all=reviews)
+  > 無料でここまで使えるなんて驚きです！
+  > これからもよろしくお願いします。
 
 - **Google Play** ★☆☆☆☆ v4.16.0 田中由梨恵 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
   > アップデートしたら今までの記録が全部消えた。 最悪。 星一つもつけたくないくらい。
