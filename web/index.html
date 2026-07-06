@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ソフィBe 口コミ一覧</title>
+<style>
+  :root {
+    --color-bg: #faf9f7;
+    --color-surface: #ffffff;
+    --color-border: #e8e4e0;
+    --color-text: #33302e;
+    --color-text-sub: #8a8480;
+    --color-accent: #c94f7c;
+    --color-accent-soft: #fbeef3;
+    --color-star: #e8a13d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .summary { color: var(--color-text-sub); font-size: 13px; margin: 0 0 24px; font-variant-numeric: tabular-nums; }
+
+  .controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .search {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 15px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    transition: border-color .15s;
+  }
+  .search:focus-visible { outline: none; border-color: var(--color-accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 4px 12px;
+    font-size: 13px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: background-color .15s, border-color .15s, color .15s;
+    font-variant-numeric: tabular-nums;
+  }
+  .chip:hover { border-color: var(--color-text-sub); }
+  .chip:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+  .chip[aria-pressed="true"] {
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .date-head {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    margin: 24px 0 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+  }
+  .card-meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--color-text-sub);
+    font-variant-numeric: tabular-nums;
+  }
+  .badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+  }
+  .stars { color: var(--color-star); letter-spacing: 1px; }
+  .card-title { font-weight: 600; font-size: 14px; margin: 6px 0 0; }
+  .card-body { font-size: 14px; margin: 4px 0 0; white-space: pre-wrap; }
+  .card-link { font-size: 12px; color: var(--color-accent); text-decoration: none; }
+  .card-link:hover { text-decoration: underline; }
+  .card-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; border-radius: 2px; }
+
+  .empty { color: var(--color-text-sub); text-align: center; padding: 48px 0; }
+  .more {
+    display: block; width: 100%; margin-top: 16px; padding: 8px;
+    font-size: 14px; border: 1px solid var(--color-border); border-radius: 8px;
+    background: var(--color-surface); color: var(--color-text); cursor: pointer;
+    transition: background-color .15s;
+  }
+  .more:hover { background: var(--color-accent-soft); }
+  .more:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ソフィBe 口コミ一覧</h1>
+  <p class="summary" id="summary">読み込み中…</p>
+
+  <div class="controls">
+    <input class="search" id="search" type="search" placeholder="キーワードで絞り込み（例: 記録 消えた）" aria-label="キーワード検索">
+    <div class="chips" id="source-chips" role="group" aria-label="ソースで絞り込み"></div>
+    <div class="chips" id="rating-chips" role="group" aria-label="評価で絞り込み"></div>
+  </div>
+
+  <div id="list"></div>
+</div>
+
+<script>
+const SOURCE_LABEL = { app_store: "App Store", google_play: "Google Play", x: "X" };
+const RATING_FILTERS = [
+  { key: "all", label: "全評価", test: () => true },
+  { key: "high", label: "星4〜5", test: r => r >= 4 },
+  { key: "mid", label: "星3", test: r => r === 3 },
+  { key: "low", label: "星1〜2", test: r => r >= 1 && r <= 2 },
+];
+const PAGE_SIZE = 200;
+
+let items = [];
+let sourceFilter = "all";
+let ratingFilter = "all";
+let query = "";
+let shown = PAGE_SIZE;
+
+const esc = s => (s || "").replace(/[&<>"']/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const stars = r => "★".repeat(r) + "☆".repeat(5 - r);
+
+function filtered() {
+  const rt = RATING_FILTERS.find(f => f.key === ratingFilter).test;
+  const q = query.trim().toLowerCase();
+  const words = q ? q.split(/\s+/) : [];
+  return items.filter(d => {
+    if (sourceFilter !== "all" && d.source !== sourceFilter) return false;
+    if (ratingFilter !== "all" && !(d.rating && rt(d.rating))) return false;
+    if (words.length) {
+      const text = ((d.title || "") + " " + (d.body || "") + " " + (d.author || "")).toLowerCase();
+      if (!words.every(w => text.includes(w))) return false;
+    }
+    return true;
+  });
+}
+
+function renderChips() {
+  const counts = { all: items.length };
+  for (const d of items) counts[d.source] = (counts[d.source] || 0) + 1;
+  const srcWrap = document.getElementById("source-chips");
+  srcWrap.innerHTML = "";
+  for (const key of ["all", "app_store", "google_play", "x"]) {
+    if (key !== "all" && !counts[key]) continue;
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = (key === "all" ? "すべて" : SOURCE_LABEL[key]) + ` ${counts[key] || 0}`;
+    b.setAttribute("aria-pressed", String(sourceFilter === key));
+    b.onclick = () => { sourceFilter = key; shown = PAGE_SIZE; render(); };
+    srcWrap.appendChild(b);
+  }
+  const rtWrap = document.getElementById("rating-chips");
+  rtWrap.innerHTML = "";
+  for (const f of RATING_FILTERS) {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = f.label;
+    b.setAttribute("aria-pressed", String(ratingFilter === f.key));
+    b.onclick = () => { ratingFilter = f.key; shown = PAGE_SIZE; render(); };
+    rtWrap.appendChild(b);
+  }
+}
+
+function render() {
+  renderChips();
+  const data = filtered();
+  const latest = items[0] ? items[0].created_at.slice(0, 10) : "-";
+  document.getElementById("summary").textContent =
+    `全 ${items.length} 件中 ${data.length} 件を表示 ・ 最新の口コミ日: ${latest}`;
+
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  if (!data.length) {
+    list.innerHTML = '<p class="empty">条件に合う口コミがありません</p>';
+    return;
+  }
+  let currentDate = null;
+  for (const d of data.slice(0, shown)) {
+    const date = d.created_at ? d.created_at.slice(0, 10) : "日付不明";
+    if (date !== currentDate) {
+      currentDate = date;
+      const h = document.createElement("div");
+      h.className = "date-head";
+      h.textContent = date;
+      list.appendChild(h);
+    }
+    const meta = [
+      `<span class="badge">${esc(SOURCE_LABEL[d.source] || d.source)}</span>`,
+      d.rating ? `<span class="stars" aria-label="評価 ${d.rating}">${stars(d.rating)}</span>` : "",
+      d.version ? `<span>v${esc(d.version)}</span>` : "",
+      d.author ? `<span>${esc(d.author)}</span>` : "",
+      `<a class="card-link" href="${esc(d.url)}" target="_blank" rel="noopener">開く</a>`,
+    ].filter(Boolean).join("");
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML =
+      `<div class="card-meta">${meta}</div>` +
+      (d.title ? `<div class="card-title">${esc(d.title)}</div>` : "") +
+      (d.body ? `<div class="card-body">${esc(d.body)}</div>` : "");
+    list.appendChild(card);
+  }
+  if (data.length > shown) {
+    const b = document.createElement("button");
+    b.className = "more";
+    b.textContent = `さらに表示（残り ${data.length - shown} 件）`;
+    b.onclick = () => { shown += PAGE_SIZE; render(); };
+    list.appendChild(b);
+  }
+}
+
+document.getElementById("search").addEventListener("input", e => {
+  query = e.target.value;
+  shown = PAGE_SIZE;
+  render();
+});
+
+fetch("./items.json")
+  .then(r => r.json())
+  .then(data => { items = data; render(); })
+  .catch(() => {
+    document.getElementById("summary").textContent = "データの読み込みに失敗しました";
+  });
+</script>
+</body>
+</html>

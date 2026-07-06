@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "review-site",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "/private/tmp/claude-502/-Users-haruka-tashiro-workspace-sofybecs/2385c199-fec6-4fa1-ab38-8ae7d4cbfaff/scratchpad/_site"],
+      "port": 8765
+    }
+  ]
+}

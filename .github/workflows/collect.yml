@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: collect-reviews
@@ -16,6 +18,9 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -41,3 +46,17 @@ jobs:
           git add state/seen.json data/items.json REVIEWS.md
           git diff --cached --quiet || git commit -m "chore: 口コミデータ更新 [skip ci]"
           git push
+
+      - name: Build site
+        run: |
+          mkdir -p _site
+          cp web/index.html _site/index.html
+          cp data/items.json _site/items.json
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
