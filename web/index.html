@@ -120,17 +120,11 @@
 
 <script>
 const SOURCE_LABEL = { app_store: "App Store", google_play: "Google Play", x: "X" };
-const RATING_FILTERS = [
-  { key: "all", label: "全評価", test: () => true },
-  { key: "high", label: "星4〜5", test: r => r >= 4 },
-  { key: "mid", label: "星3", test: r => r === 3 },
-  { key: "low", label: "星1〜2", test: r => r >= 1 && r <= 2 },
-];
 const PAGE_SIZE = 200;
 
 let items = [];
 let sourceFilter = "all";
-let ratingFilter = "all";
+let selectedRatings = new Set(); // 空 = 全評価
 let query = "";
 let shown = PAGE_SIZE;
 
@@ -139,12 +133,11 @@ const esc = s => (s || "").replace(/[&<>"']/g, c =>
 const stars = r => "★".repeat(r) + "☆".repeat(5 - r);
 
 function filtered() {
-  const rt = RATING_FILTERS.find(f => f.key === ratingFilter).test;
   const q = query.trim().toLowerCase();
   const words = q ? q.split(/\s+/) : [];
   return items.filter(d => {
     if (sourceFilter !== "all" && d.source !== sourceFilter) return false;
-    if (ratingFilter !== "all" && !(d.rating && rt(d.rating))) return false;
+    if (selectedRatings.size && !selectedRatings.has(d.rating)) return false;
     if (words.length) {
       const text = ((d.title || "") + " " + (d.body || "") + " " + (d.author || "")).toLowerCase();
       if (!words.every(w => text.includes(w))) return false;
@@ -167,14 +160,26 @@ function renderChips() {
     b.onclick = () => { sourceFilter = key; shown = PAGE_SIZE; render(); };
     srcWrap.appendChild(b);
   }
+  const ratingCounts = {};
+  for (const d of items) if (d.rating) ratingCounts[d.rating] = (ratingCounts[d.rating] || 0) + 1;
   const rtWrap = document.getElementById("rating-chips");
   rtWrap.innerHTML = "";
-  for (const f of RATING_FILTERS) {
+  const allBtn = document.createElement("button");
+  allBtn.className = "chip";
+  allBtn.textContent = "全評価";
+  allBtn.setAttribute("aria-pressed", String(selectedRatings.size === 0));
+  allBtn.onclick = () => { selectedRatings.clear(); shown = PAGE_SIZE; render(); };
+  rtWrap.appendChild(allBtn);
+  for (const r of [5, 4, 3, 2, 1]) {
     const b = document.createElement("button");
     b.className = "chip";
-    b.textContent = f.label;
-    b.setAttribute("aria-pressed", String(ratingFilter === f.key));
-    b.onclick = () => { ratingFilter = f.key; shown = PAGE_SIZE; render(); };
+    b.textContent = `星${r} ${ratingCounts[r] || 0}`;
+    b.setAttribute("aria-pressed", String(selectedRatings.has(r)));
+    b.onclick = () => {
+      selectedRatings.has(r) ? selectedRatings.delete(r) : selectedRatings.add(r);
+      shown = PAGE_SIZE;
+      render();
+    };
     rtWrap.appendChild(b);
   }
 }

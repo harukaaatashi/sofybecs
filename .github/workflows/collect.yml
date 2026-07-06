@@ -2,8 +2,8 @@ name: collect-reviews
 
 on:
   schedule:
-    # JST 6:00 / 12:00 / 18:00 / 24:00（UTC+9）
-    - cron: "0 21,3,9,15 * * *"
+    # JST 6:00（UTC+9）に1日1回
+    - cron: "0 21 * * *"
   workflow_dispatch: {}
 
 permissions:

@@ -14,7 +14,7 @@
 | Google Play（`jp.sofy.be`） | [google-play-scraper](https://pypi.org/project/google-play-scraper/) | 無料 |
 | X（`"ソフィBe"` 完全一致検索・RT除外） | X API v2 recent search（従量課金） | 月数百円目安 |
 | 関連性フィルタ（X投稿のみ・任意） | Claude Haiku | ほぼゼロ（月数十円未満） |
-| 定期実行 | GitHub Actions cron（1日4回・JST 6/12/18/24時） | 無料枠内 |
+| 定期実行 | GitHub Actions cron（1日1回・JST 6時） | 無料枠内 |
 | 通知 | Slack Incoming Webhook | 無料 |
 
 X・Claudeのキーが無くても、App Store + Google Play だけで動きます（該当ソースは自動スキップ）。
