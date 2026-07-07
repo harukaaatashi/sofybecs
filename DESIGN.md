@@ -34,7 +34,7 @@
 
 ## 3. コンポーネント
 
-- **フィルタチップ**: default=白地+罫線 / selected=accent-soft地+accent文字+accent罫線 / hover=border濃く / focus-visible=accentのoutline 2px。サイドバー内は縦積み・幅100%、モバイル1カラム時は横並びに戻す
+- **フィルタチップ**: default=白地+罫線 / selected=accent-soft地+accent文字+accent罫線 / hover=border濃く / focus-visible=accentのoutline 2px。ドロップダウンは使わず、各フィルタ群（ソース/評価/機能/バージョン）の全選択肢をグループ見出しの下に**常時表示**する。チップは auto 幅のピルで横並び・折り返し（`flex-wrap`）。ラベル右に件数を tabular-nums で添える。選択中チップは selected スタイルでハイライトし「今どのフィルタが効いているか」を一目で示す（トグルで解除、`aria-pressed`）。1カラム時も同じ横並び折り返し
 - **レビューカード**: surface地、罫線、影なし。ソースバッジ + 星 + メタ行 + 機能タグ + 本文
 - **機能タグ**: 白地 + border罫線 + text-sub文字の控えめなピル。フィルタチップ（accent系）とは視覚的に区別する
 - **検索ボックス**: 罫線input、focus-visibleでaccent罫線

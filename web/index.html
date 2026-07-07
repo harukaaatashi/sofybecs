@@ -45,12 +45,11 @@
     flex: 0 0 260px;
     position: sticky;
     top: 64px;
-    max-height: calc(100vh - 64px);
-    overflow-y: auto;
     padding: 24px 4px 24px 0;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    align-self: flex-start;
   }
   .results { flex: 1 1 auto; min-width: 0; }
   .summary {
@@ -83,126 +82,42 @@
   }
   .search:focus-visible { outline: none; border-color: var(--color-accent); }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .filter-shell { display: flex; flex-direction: column; gap: 8px; }
-  .filter-popover { position: relative; }
-  .filter-trigger {
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    font-size: 14px;
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    background: var(--color-surface);
-    color: var(--color-text);
-    cursor: pointer;
-    transition: border-color .15s, background-color .15s;
-  }
-  .filter-trigger:hover { border-color: var(--color-text-sub); }
-  .filter-trigger:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; }
-  .filter-trigger.has-value {
-    border-color: var(--color-accent);
-    background: var(--color-accent-soft);
-  }
-  .filter-trigger-label {
-    min-width: 0;
-    text-align: left;
-  }
-  .filter-trigger-meta {
-    flex-shrink: 0;
-    color: var(--color-text-sub);
-    font-size: 12px;
-    font-variant-numeric: tabular-nums;
-  }
-  .filter-panel {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    right: 0;
-    z-index: 20;
-    padding: 8px;
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    background: var(--color-surface);
-    box-shadow: 0 12px 24px rgba(51, 48, 46, 0.08);
-  }
-  .filter-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 8px;
-  }
-  .filter-clear {
+  .sidebar-clear {
+    align-self: flex-start;
     padding: 0;
     border: 0;
     background: transparent;
     color: var(--color-accent);
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
   }
-  .filter-clear:hover { text-decoration: underline; }
-  .filter-clear:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; border-radius: 4px; }
-  .filter-options {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    max-height: 240px;
-    overflow-y: auto;
-  }
-  .filter-option {
-    width: 100%;
-    min-height: 40px;
-    padding: 8px 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--color-text);
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color .15s, color .15s;
-  }
-  .filter-option:hover { background: var(--color-accent-soft); }
-  .filter-option:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; }
-  .filter-option.is-selected {
-    background: var(--color-accent-soft);
-    color: var(--color-accent);
-  }
-  .filter-option-count {
-    flex-shrink: 0;
+  .sidebar-clear:hover { text-decoration: underline; }
+  .sidebar-clear:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; border-radius: 4px; }
+  .chip-count {
     color: var(--color-text-sub);
     font-size: 12px;
     font-variant-numeric: tabular-nums;
   }
-  .selected-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+  .chip-selected .chip-count { color: var(--color-accent); }
+
+  @media (max-width: 980px) {
+    .layout { flex-direction: column; }
+    .sidebar {
+      position: static;
+      flex-basis: auto;
+      width: 100%;
+      padding: 0;
+      gap: 16px;
+    }
+    .summary {
+      position: static;
+      padding-top: 0;
+    }
   }
 
   @media (max-width: 768px) {
     .site-header { height: 56px; }
     .summary { top: 56px; }
-    .layout { flex-direction: column; }
-    .sidebar {
-      position: static;
-      top: auto;
-      flex-basis: auto;
-      width: 100%;
-      max-height: none;
-      overflow-y: visible;
-      padding: 0;
-    }
-    .filter-panel {
-      position: static;
-      margin-top: 8px;
-      box-shadow: none;
-    }
   }
   .chip {
     min-height: 36px;
@@ -226,7 +141,6 @@
     border-color: var(--color-accent);
     color: var(--color-accent);
   }
-  .chip-remove { font-size: 14px; line-height: 1; }
 
   .date-head {
     font-size: 13px;
@@ -290,6 +204,7 @@
       <div class="filter-group">
         <input class="search" id="search" type="search" placeholder="キーワードで絞り込み（例: 記録 消えた）" aria-label="キーワード検索">
       </div>
+      <button class="sidebar-clear" id="clear-filters" type="button" hidden>絞り込みをクリア</button>
       <div class="filter-group">
         <span class="filter-label">ソース</span>
         <div id="source-filter"></div>
@@ -328,7 +243,6 @@ let selectedVersions = new Set(); // 空 = 全バージョン
 let selectedFeatures = new Set(); // 空 = 全機能
 let query = "";
 let shown = PAGE_SIZE;
-let openDropdown = null;
 
 // "4.16"(iOS) と "4.16.0"(Android) を同じリリースに束ねる
 const verKey = d => {
@@ -362,157 +276,65 @@ function toggleSetValue(set, value) {
   else set.add(value);
 }
 
-function renderDropdown({
-  mountId,
-  dropdownId,
-  buttonLabel,
-  buttonMeta,
-  options,
-  selectedValues,
-  multi = true,
-  onSelect,
-  onRemove,
-  onClear,
-  clearLabel,
-}) {
+function renderChipGroup({ mountId, options, selectedValues, onToggle }) {
   const mount = document.getElementById(mountId);
   mount.innerHTML = "";
 
-  const wrap = document.createElement("div");
-  wrap.className = "filter-shell";
-
-  const popover = document.createElement("div");
-  popover.className = "filter-popover";
-  popover.dataset.dropdownId = dropdownId;
-
-  const trigger = document.createElement("button");
-  trigger.type = "button";
-  trigger.className = "filter-trigger" + (selectedValues.length ? " has-value" : "");
-  trigger.setAttribute("aria-expanded", String(openDropdown === dropdownId));
-  trigger.setAttribute("aria-controls", `${dropdownId}-panel`);
-  trigger.innerHTML =
-    `<span class="filter-trigger-label">${esc(buttonLabel)}</span>` +
-    `<span class="filter-trigger-meta">${esc(buttonMeta)}</span>`;
-  trigger.onclick = event => {
-    event.stopPropagation();
-    openDropdown = openDropdown === dropdownId ? null : dropdownId;
-    renderFilters();
-  };
-  popover.appendChild(trigger);
-
-  const panel = document.createElement("div");
-  panel.id = `${dropdownId}-panel`;
-  panel.className = "filter-panel";
-  panel.hidden = openDropdown !== dropdownId;
-  panel.addEventListener("click", event => event.stopPropagation());
-
-  if (selectedValues.length) {
-    const actions = document.createElement("div");
-    actions.className = "filter-actions";
-    const clear = document.createElement("button");
-    clear.type = "button";
-    clear.className = "filter-clear";
-    clear.textContent = clearLabel;
-    clear.onclick = () => {
-      onClear();
-      shown = PAGE_SIZE;
-      render();
-    };
-    actions.appendChild(clear);
-    panel.appendChild(actions);
-  }
-
-  const optionsWrap = document.createElement("div");
-  optionsWrap.className = "filter-options";
+  const chips = document.createElement("div");
+  chips.className = "chips";
   for (const option of options) {
     const selected = selectedValues.includes(option.value);
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "filter-option" + (selected ? " is-selected" : "");
-    button.innerHTML =
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip" + (selected ? " chip-selected" : "");
+    chip.setAttribute("aria-pressed", String(selected));
+    chip.innerHTML =
       `<span>${esc(option.label)}</span>` +
-      `<span class="filter-option-count">${option.count}</span>`;
-    button.onclick = () => {
-      onSelect(option.value);
+      `<span class="chip-count">${option.count}</span>`;
+    chip.onclick = () => {
+      onToggle(option.value);
       shown = PAGE_SIZE;
-      if (!multi) openDropdown = null;
       render();
     };
-    optionsWrap.appendChild(button);
+    chips.appendChild(chip);
   }
-  panel.appendChild(optionsWrap);
-  popover.appendChild(panel);
-  wrap.appendChild(popover);
+  mount.appendChild(chips);
+}
 
-  if (selectedValues.length) {
-    const chips = document.createElement("div");
-    chips.className = "selected-chips";
-    for (const option of options.filter(option => selectedValues.includes(option.value))) {
-      const chip = document.createElement("button");
-      chip.type = "button";
-      chip.className = "chip chip-selected";
-      chip.setAttribute("aria-label", `${option.label} を解除`);
-      chip.innerHTML = `${esc(option.label)} <span class="chip-remove">×</span>`;
-      chip.onclick = () => {
-        onRemove(option.value);
-        shown = PAGE_SIZE;
-        render();
-      };
-      chips.appendChild(chip);
-    }
-    wrap.appendChild(chips);
-  }
-
-  mount.appendChild(wrap);
+function hasActiveFilter() {
+  return sourceFilter !== "all" || selectedRatings.size || selectedVersions.size || selectedFeatures.size;
 }
 
 function renderFilters() {
-  const counts = { all: items.length };
+  const counts = {};
   for (const d of items) counts[d.source] = (counts[d.source] || 0) + 1;
   const sourceOptions = ["app_store", "google_play", "x"]
     .filter(key => counts[key])
     .map(key => ({ value: key, label: SOURCE_LABEL[key], count: counts[key] || 0 }));
-  renderDropdown({
+  renderChipGroup({
     mountId: "source-filter",
-    dropdownId: "source",
-    buttonLabel: sourceFilter === "all" ? "すべてのソース" : SOURCE_LABEL[sourceFilter],
-    buttonMeta: sourceFilter === "all" ? `${items.length} 件` : "1件選択中",
     options: sourceOptions,
     selectedValues: sourceFilter === "all" ? [] : [sourceFilter],
-    multi: false,
-    onSelect: value => { sourceFilter = value; },
-    onRemove: () => { sourceFilter = "all"; },
-    onClear: () => { sourceFilter = "all"; },
-    clearLabel: "すべてに戻す",
+    // 単一選択: 選択済みを再度押すと解除（all に戻す）
+    onToggle: value => { sourceFilter = sourceFilter === value ? "all" : value; },
   });
+
   const ratingCounts = {};
   for (const d of items) if (d.rating) ratingCounts[d.rating] = (ratingCounts[d.rating] || 0) + 1;
-  renderDropdown({
+  renderChipGroup({
     mountId: "rating-filter",
-    dropdownId: "rating",
-    buttonLabel: selectedRatings.size ? "評価を選択" : "すべての評価",
-    buttonMeta: selectedRatings.size ? `${selectedRatings.size}件選択中` : "未選択",
     options: [5, 4, 3, 2, 1].map(r => ({ value: r, label: `星${r}`, count: ratingCounts[r] || 0 })),
     selectedValues: [...selectedRatings],
-    onSelect: value => { toggleSetValue(selectedRatings, value); },
-    onRemove: value => { selectedRatings.delete(value); },
-    onClear: () => { selectedRatings.clear(); },
-    clearLabel: "評価をクリア",
+    onToggle: value => { toggleSetValue(selectedRatings, value); },
   });
 
   const featCounts = {};
   for (const d of items) for (const f of (d.features || ["その他"])) featCounts[f] = (featCounts[f] || 0) + 1;
-  renderDropdown({
+  renderChipGroup({
     mountId: "feature-filter",
-    dropdownId: "feature",
-    buttonLabel: selectedFeatures.size ? "機能を選択" : "すべての機能",
-    buttonMeta: selectedFeatures.size ? `${selectedFeatures.size}件選択中` : "未選択",
     options: FEATURES.map(f => ({ value: f, label: f, count: featCounts[f] || 0 })),
     selectedValues: [...selectedFeatures],
-    onSelect: value => { toggleSetValue(selectedFeatures, value); },
-    onRemove: value => { selectedFeatures.delete(value); },
-    onClear: () => { selectedFeatures.clear(); },
-    clearLabel: "機能をクリア",
+    onToggle: value => { toggleSetValue(selectedFeatures, value); },
   });
 
   const verCounts = {};
@@ -522,18 +344,15 @@ function renderFilters() {
     if (b === "不明") return -1;
     return b.localeCompare(a, undefined, { numeric: true });
   });
-  renderDropdown({
+  renderChipGroup({
     mountId: "version-filter",
-    dropdownId: "version",
-    buttonLabel: selectedVersions.size ? "バージョンを選択" : "すべてのバージョン",
-    buttonMeta: selectedVersions.size ? `${selectedVersions.size}件選択中` : "未選択",
     options: versions.map(v => ({ value: v, label: v === "不明" ? v : `v${v}`, count: verCounts[v] })),
     selectedValues: [...selectedVersions],
-    onSelect: value => { toggleSetValue(selectedVersions, value); },
-    onRemove: value => { selectedVersions.delete(value); },
-    onClear: () => { selectedVersions.clear(); },
-    clearLabel: "バージョンをクリア",
+    onToggle: value => { toggleSetValue(selectedVersions, value); },
   });
+
+  const clearBtn = document.getElementById("clear-filters");
+  clearBtn.hidden = !hasActiveFilter();
 }
 
 function render() {
@@ -590,18 +409,13 @@ document.getElementById("search").addEventListener("input", e => {
   render();
 });
 
-document.addEventListener("click", event => {
-  if (!event.target.closest(".filter-popover") && openDropdown !== null) {
-    openDropdown = null;
-    renderFilters();
-  }
-});
-
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && openDropdown !== null) {
-    openDropdown = null;
-    renderFilters();
-  }
+document.getElementById("clear-filters").addEventListener("click", () => {
+  sourceFilter = "all";
+  selectedRatings.clear();
+  selectedFeatures.clear();
+  selectedVersions.clear();
+  shown = PAGE_SIZE;
+  render();
 });
 
 fetch("./items.json", { cache: "no-cache" })
