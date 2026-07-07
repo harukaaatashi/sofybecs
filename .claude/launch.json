@@ -4,8 +4,8 @@
     {
       "name": "review-site",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "/private/tmp/claude-502/-Users-haruka-tashiro-workspace-sofybecs/2385c199-fec6-4fa1-ab38-8ae7d4cbfaff/scratchpad/_site"],
-      "port": 8765
+      "runtimeArgs": ["-m", "http.server", "8768", "--directory", "/private/tmp/claude-502/-Users-haruka-tashiro-workspace-sofybecs/f0bce8d8-ef51-4731-b7d0-489cbbca1d71/scratchpad/preview"],
+      "port": 8768
     }
   ]
 }

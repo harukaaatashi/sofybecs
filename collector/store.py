@@ -10,11 +10,11 @@ from .models import Item
 DATA_FILE = os.environ.get("DATA_FILE", "data/items.json")
 REVIEWS_MD = os.environ.get("REVIEWS_MD", "REVIEWS.md")
 MD_MAX_ITEMS = int(os.environ.get("MD_MAX_ITEMS", "300"))
+SUPPORTED_SOURCES = {"app_store", "google_play"}
 
 SOURCE_LABEL = {
     "app_store": "App Store",
     "google_play": "Google Play",
-    "x": "X",
 }
 
 
@@ -30,7 +30,8 @@ def load() -> list[dict]:
     if not os.path.exists(DATA_FILE):
         return []
     with open(DATA_FILE, encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    return [d for d in data if d.get("source") in SUPPORTED_SOURCES]
 
 
 def merge(items: list[Item]) -> list[dict]:
@@ -38,6 +39,8 @@ def merge(items: list[Item]) -> list[dict]:
     data = load()
     known = {(d["source"], d["id"]) for d in data}
     for i in items:
+        if i.source not in SUPPORTED_SOURCES:
+            continue
         if (i.source, i.id) in known:
             continue
         data.append(

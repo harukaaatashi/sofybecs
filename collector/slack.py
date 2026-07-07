@@ -7,7 +7,6 @@ from .models import Item
 SOURCE_LABEL = {
     "app_store": ":apple: App Store レビュー",
     "google_play": ":robot_face: Google Play レビュー",
-    "x": ":bird: X の投稿",
 }
 
 

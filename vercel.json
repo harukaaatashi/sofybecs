@@ -1,5 +1,16 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "mkdir -p _site && cp web/index.html _site/index.html && cp data/items.json _site/items.json",
-  "outputDirectory": "_site"
+  "buildCommand": "node scripts/build_site.mjs",
+  "outputDirectory": "_site",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive, nosnippet"
+        }
+      ]
+    }
+  ]
 }

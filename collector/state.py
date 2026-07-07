@@ -6,9 +6,9 @@ import os
 from . import config
 
 EMPTY = {
+    "_meta": {"last_run_at": ""},
     "app_store": {"seen_ids": []},
     "google_play": {"seen_ids": []},
-    "x": {"seen_ids": [], "since_id": None},
 }
 
 

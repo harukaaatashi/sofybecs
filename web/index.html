@@ -288,7 +288,7 @@
 </div>
 
 <script>
-const SOURCE_LABEL = { app_store: "App Store", google_play: "Google Play", x: "X" };
+const SOURCE_LABEL = { app_store: "App Store", google_play: "Google Play" };
 const PAGE_SIZE = 200;
 
 let items = [];
@@ -386,7 +386,7 @@ function hasActiveFilter() {
 function renderFilters() {
   const counts = {};
   for (const d of items) counts[d.source] = (counts[d.source] || 0) + 1;
-  const sourceOptions = ["app_store", "google_play", "x"]
+  const sourceOptions = ["app_store", "google_play"]
     .filter(key => counts[key])
     .map(key => ({ value: key, label: SOURCE_LABEL[key], count: counts[key] || 0 }));
   renderChipGroup({

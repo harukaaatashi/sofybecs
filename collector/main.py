@@ -7,10 +7,11 @@
 
 import sys
 import traceback
+from datetime import datetime, timedelta, timezone
 
-from . import config, filter as flt, slack, state as state_mod, store
+from . import config, slack, state as state_mod, store
 from .models import Item
-from .sources import app_store, google_play, x_search
+from .sources import app_store, google_play
 
 
 def _dedupe_new(items: list[Item], seen_ids: list[str]) -> list[Item]:
@@ -18,14 +19,52 @@ def _dedupe_new(items: list[Item], seen_ids: list[str]) -> list[Item]:
     return [i for i in items if i.id not in seen]
 
 
+def _parse_iso8601(value: str) -> datetime | None:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _should_skip_run(state: dict) -> tuple[bool, str]:
+    if config.FORCE_RUN or config.MIN_COLLECT_INTERVAL_HOURS <= 0:
+        return False, ""
+    last_run_at = _parse_iso8601(state.get("_meta", {}).get("last_run_at", ""))
+    if not last_run_at:
+        return False, ""
+    next_run_at = last_run_at + timedelta(hours=config.MIN_COLLECT_INTERVAL_HOURS)
+    now = datetime.now(timezone.utc)
+    if now < next_run_at:
+        return True, next_run_at.isoformat()
+    return False, ""
+
+
 def run() -> int:
     state = state_mod.load()
+    skip, next_run_at = _should_skip_run(state)
+    if skip:
+        print(
+            "[guard] 直近で収集済みのためスキップ"
+            f"（次回目安: {next_run_at} / FORCE_RUN=1 で上書き）"
+        )
+        return 0
     collected: list[Item] = []
     to_post: list[Item] = []
     errors: list[str] = []
 
     # --- App Store / Google Play（レビューは全件が対象、フィルタ不要） ---
-    for name, fetch in (("app_store", app_store.fetch), ("google_play", google_play.fetch)):
+    review_sources = []
+    if config.APP_STORE_ENABLED:
+        review_sources.append(("app_store", app_store.fetch))
+    else:
+        print("[app_store] APP_STORE_ENABLED=0 のためスキップ")
+    if config.GOOGLE_PLAY_ENABLED:
+        review_sources.append(("google_play", google_play.fetch))
+    else:
+        print("[google_play] GOOGLE_PLAY_ENABLED=0 のためスキップ")
+    for name, fetch in review_sources:
         try:
             items = fetch()
         except Exception:
@@ -44,25 +83,6 @@ def run() -> int:
         print(f"[{name}] 取得 {len(items)} 件 / 新着 {len(new_items)} 件"
               + ("（初回のため直近のみ通知）" if first_run else ""))
 
-    # --- X ---
-    if config.X_BEARER_TOKEN:
-        try:
-            x_state = state["x"]
-            items, newest_id = x_search.fetch(since_id=x_state.get("since_id"))
-            new_items = _dedupe_new(items, x_state["seen_ids"])
-            new_items = flt.filter_x_items(new_items)
-            collected.extend(new_items)
-            new_items.reverse()
-            x_state["seen_ids"].extend(i.id for i in items)
-            if newest_id:
-                x_state["since_id"] = newest_id
-            to_post.extend(new_items)
-            print(f"[x] 取得 {len(items)} 件 / フィルタ後の新着 {len(new_items)} 件")
-        except Exception:
-            errors.append(f"x: 取得失敗\n{traceback.format_exc()}")
-    else:
-        print("[x] X_BEARER_TOKEN 未設定のためスキップ")
-
     # --- 蓄積と一覧生成 ---
     data = store.merge(collected)
     store.write_markdown(data)
@@ -78,6 +98,7 @@ def run() -> int:
     else:
         print(f"[slack] SLACK_WEBHOOK_URL 未設定のためスキップ（新着 {len(to_post)} 件は一覧に反映済み）")
 
+    state["_meta"]["last_run_at"] = datetime.now(timezone.utc).isoformat()
     state_mod.save(state)
 
     if errors:

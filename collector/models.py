@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 @dataclass
 class Item:
-    source: str  # "app_store" | "google_play" | "x"
+    source: str  # "app_store" | "google_play"
     id: str
     body: str
     url: str
