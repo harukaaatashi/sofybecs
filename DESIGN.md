@@ -6,7 +6,7 @@
 
 - プロファイル: dashboard（閲覧専用・情報密度中）
 - ムード: ミニマル・クリーン。装飾より読みやすさ優先
-- 技術基盤: **React + TypeScript + smarthr-ui**（フォーム・a11y品質を担う）。トグルチップ・カード等の独自コンポーネントは自作CSS
+- 技術基盤: **React + TypeScript + smarthr-ui**。UIは原則 smarthr-ui コンポーネント（`Base`/`Heading`/`Text`/`TextLink`/`Chip`/`Checkbox`/`RadioButton`/`Fieldset`/`Stack`/`Cluster`/`Button`/`SearchInput` 等）で組む。自作CSSはレイアウト・sticky・フローティング・レスポンシブに限定（§3参照）
 - 配色: **ソフィBeプロダクトのSemantic Color**（Figmaカラーガイド準拠）。SmartHRの見た目にはせず、smarthr-uiは `createTheme` でソフィBeトークンにマップする（`src/theme.ts`）
 - コンテンツ言語: 日本語中心
 - 対象端末: モバイル / デスクトップ両対応
@@ -49,16 +49,28 @@
 
 ## 3. コンポーネント
 
-- **smarthr-ui を使う箇所**: 検索（`SearchInput`）、視覚的に隠すテキスト（`VisuallyHiddenText`）。テーマは `src/theme.ts` 経由
-- **フィルタチップ（自作）**: default=surface地+罫線 / selected=surface-emphasis地+accent-primary文字+accent-primary罫線 / hover=border濃く / focus-visible=accent-primaryのoutline 2px。`aria-pressed` 付きトグルボタン。ラベル右に件数を tabular-nums で添える。各フィルタ群は `fieldset`/`legend` でグループ化する
+UIは原則 **smarthr-ui コンポーネント**で組む。自作CSSはレイアウト・sticky・フローティング・レスポンシブなど smarthr-ui で表現できない部分に限る。用途とコンポーネントの対応:
+
+| 用途 | コンポーネント |
+|---|---|
+| ページタイトル | `PageHeading`（`autoPageTitle={false}` で document.title を汚さない） |
+| 日付グループ見出し | `Section` + `Heading type="blockTitle"`（SectioningContentで階層を明示、不推奨tag回避） |
+| 本文・メタ・件数 | `Text`（`styleType`/`size`/`color="TEXT_GREY"`/`leading`。数値は tabular-nums） |
+| レビューカード | `Base as="article" layer={0} radius="m"`（影なし=カード原則）。`content-visibility:auto` で200件表示を軽量化 |
+| ソース・機能タグ | `Chip`（表示専用。ソース=`color="blue"` / 機能=`color="grey"`） |
+| リンク（開く） | `TextLink target="_blank"`（外部アイコンと「別タブで開く」読み上げは smarthr-ui が自動付与。自前の注記は付けない） |
+| フィルタ: ソース（単一選択） | `Fieldset` + `RadioButton`群（「すべて」を含む） |
+| フィルタ: 評価/機能/バージョン（複数選択） | `Fieldset` + `Checkbox`群 |
+| レイアウト | `Stack`（縦積みgap）/ `Cluster`（横並び折り返しgap） |
+| ボタン・クリア・「さらに表示」・「すべて表示」 | `Button`（`variant="secondary" wide"` / `variant="text" size="S"` / `variant="skeleton"`） |
+| 検索 | `SearchInput`（`spellCheck={false}`） |
+
+- **選択状態**: Checkbox/RadioButton の標準UIで「選択中」を明示（旧トグルチップの色依存を廃止）。選択中の値は tabular-nums で件数を併記
 - **フィルタサイドバーの原則**: sticky（デスクトップ）。**浮いた白のフローティングパネル**（`--color-surface` / 角丸16px / `--shadow-panel` / 内側padding 24px）。ヘッダー下に16pxの余白を空けて浮かせ、sticky `top` と `margin-top` を一致させる。内容は常にビューポート内に収まるよう設計し、保険として `max-height` と `overflow-y: auto` を持つ。選択肢が多い群（バージョン）は最新8件+「すべて表示」トグルで折りたたむ（選択中の値は折りたたみ中でも常に表示、`aria-expanded`）
-- **適用中フィルターの可視化**: 結果一覧上部の sticky サマリー行に、適用中フィルターを削除可能チップ（×）で常時表示し、末尾に「すべてクリア」を置く。件数表示は `aria-live="polite"` で支援技術にも通知する
+- **適用中フィルターの可視化**: 結果一覧上部の sticky サマリー行に、適用中フィルターを削除可能ボタン（`Button variant="skeleton"` + `aria-label`、×は`aria-hidden`）で常時表示し、末尾に「すべてクリア」を置く。件数表示は `aria-live="polite"` で支援技術にも通知する
 - **URL共有**: 絞り込み状態（検索語・ソース・評価・機能・バージョン）はURLクエリに反映する（`history.replaceState`、履歴は汚さない）。URLを開くと同じ絞り込み状態が復元される
 - **クリアへのクイックアクセス**: デスクトップは検索ボックス直下、モバイル（≤980px）はフィルタパネル内末尾に「絞り込みをクリア」を設置（適用中のみ表示）。結果側サマリーのクリアと二重に導線を持つ
-- **モバイル（≤980px）**: フィルター群は「絞り込み（N件適用中）」ボタンで開閉するディスクロージャー（`aria-expanded`、デフォルト閉）。検索ボックスは常時表示。チップは min-height 40px
-- **レビューカード**: `article`。surface地、罫線、影なし。ソースバッジ + 星 + メタ行 + 機能タグ + 本文。日付グループ見出しは `h2`
-- **機能タグ**: surface地 + border罫線 + text-secondary文字の控えめなピル。フィルタチップとは視覚的に区別する
-- **リンク**: `--color-text-link` + 常時下線。新規タブで開くものは `VisuallyHiddenText` で「（新しいタブで開く）」を付す
+- **モバイル（≤980px）**: フィルター群は「絞り込み（N件適用中）」ボタンで開閉するディスクロージャー（`aria-expanded`、デフォルト閉、`touch-action: manipulation`）。検索ボックスは常時表示。Checkbox/RadioButton の行タップ領域は min-height 44px を確保
 
 ## 7. Do's / Don'ts
 

@@ -1,3 +1,4 @@
+import { Button, Cluster, Text } from "smarthr-ui";
 import { FEATURES, SOURCE_LABEL, hasActiveFilter, toggled, type Filters } from "../lib";
 
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
   onClear: () => void;
 };
 
-/** 結果件数 + 適用中フィルターの削除可能チップ + すべてクリア。sticky。 */
+/** 結果件数 + 適用中フィルターの削除可能ボタン + すべてクリア。sticky。 */
 export function SummaryBar({
   total,
   shownCount,
@@ -49,32 +50,32 @@ export function SummaryBar({
   }
 
   return (
-    <div className="summary">
+    <Cluster gap="XS" align="center" className="summary" as="div">
       {/* 絞り込み結果の変化を支援技術にも通知する */}
-      <span aria-live="polite">
+      <Text size="S" color="TEXT_GREY" aria-live="polite" className="summary-count">
         {loadState === "loading" && "読み込み中…"}
         {loadState === "error" && "データの読み込みに失敗しました"}
         {loadState === "ready" &&
           `全 ${total} 件中 ${shownCount} 件を表示 ・ 最新の口コミ日: ${latestDate}`}
-      </span>
-      <span className="chips">
-        {active.map((item) => (
-          <button
-            key={item.label}
-            type="button"
-            className="chip chip-selected"
-            aria-label={`${item.label} の絞り込みを解除`}
-            onClick={item.remove}
-          >
-            {item.label} <span className="chip-remove">×</span>
-          </button>
-        ))}
-      </span>
+      </Text>
+      {active.map((item) => (
+        <Button
+          key={item.label}
+          variant="skeleton"
+          size="S"
+          suffix={<span aria-hidden="true">×</span>}
+          aria-label={`${item.label} の絞り込みを解除`}
+          onClick={item.remove}
+          className="summary-chip"
+        >
+          {item.label}
+        </Button>
+      ))}
       {hasActiveFilter(filters) && (
-        <button type="button" className="summary-clear" onClick={onClear}>
+        <Button variant="text" size="S" onClick={onClear}>
           すべてクリア
-        </button>
+        </Button>
       )}
-    </div>
+    </Cluster>
   );
 }

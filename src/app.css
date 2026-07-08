@@ -1,4 +1,6 @@
-/* レイアウト・独自コンポーネントのスタイル。色は tokens.css のトークン経由のみ。 */
+/* レイアウト・独自スタイル。色は tokens.css のトークン経由のみ。
+   UIコンポーネント（チップ/カード/ボタン/フォーム/見出し）は smarthr-ui を使い、
+   ここには smarthr-ui で表現できない「レイアウト・sticky・フローティング・レスポンシブ」だけを残す。 */
 * { box-sizing: border-box; }
 body {
   margin: 0;
@@ -20,7 +22,6 @@ body {
   border-bottom: 1px solid var(--color-border);
 }
 .site-header .wrap { padding-top: 0; padding-bottom: 0; }
-.site-title { font-size: 20px; margin: 0; font-weight: 700; }
 
 /* 上余白はsticky要素（sidebar/summary）自身が持つ。ここに置くとsticky時に間隔が縮む */
 .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 64px; }
@@ -43,41 +44,30 @@ body {
   border: 1px solid var(--color-border);
   border-radius: 16px;
   box-shadow: var(--shadow-panel);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
   align-self: flex-start;
 }
 
 .results { flex: 1 1 auto; min-width: 0; }
 
+/* sticky なサマリー行の帯。中身のレイアウトは smarthr-ui Cluster が持つ */
 .summary {
   position: sticky;
   top: 64px;
   z-index: 5;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
   background: var(--color-bg);
-  color: var(--color-text-secondary);
-  font-size: 13px;
   margin: 0;
   padding: 16px 0 12px;
   font-variant-numeric: tabular-nums;
 }
-.summary .chip { min-height: 28px; padding: 0 12px; }
-.chip-remove { font-size: 14px; line-height: 1; }
+.summary-count { font-variant-numeric: tabular-nums; }
 
-.filter-group { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.filter-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  padding: 0;
-}
-.filter-body { display: flex; flex-direction: column; gap: 16px; }
+/* 適用中フィルターの解除ボタン（smarthr-ui Button）の × を少し詰める */
+.summary-chip { font-variant-numeric: tabular-nums; }
 
+/* フィルタ項目の件数（tabular-nums で桁を揃える） */
+.filter-count { font-variant-numeric: tabular-nums; }
+
+/* モバイル用の絞り込み開閉トグル（デスクトップでは非表示） */
 .filter-toggle {
   display: none;
   min-height: 44px;
@@ -91,6 +81,7 @@ body {
   background: var(--color-surface);
   color: var(--color-text-primary);
   cursor: pointer;
+  touch-action: manipulation;
   transition: border-color .15s;
 }
 .filter-toggle:hover { border-color: var(--color-text-secondary); }
@@ -101,110 +92,25 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip {
-  min-height: 32px;
-  padding: 4px 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  cursor: pointer;
-  transition: background-color .15s, border-color .15s, color .15s;
-  font-variant-numeric: tabular-nums;
-}
-.chip:hover { border-color: var(--color-text-secondary); }
-.chip:focus-visible { outline: 2px solid var(--color-accent-primary); outline-offset: 1px; }
-.chip-selected {
-  background: var(--color-surface-emphasis);
-  border-color: var(--color-accent-primary);
-  color: var(--color-accent-primary);
-}
-.chip-count {
-  color: var(--color-text-secondary);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
-.chip-selected .chip-count { color: var(--color-accent-primary); }
-
-.chips-toggle, .summary-clear, .sidebar-clear {
-  align-self: flex-start;
-  padding: 4px 0;
-  border: 0;
-  background: transparent;
-  color: var(--color-text-link);
-  text-decoration: underline;
-  font-size: 12px;
-  cursor: pointer;
-  font-variant-numeric: tabular-nums;
-}
-.sidebar-clear { font-size: 13px; }
-.chips-toggle:hover, .summary-clear:hover, .sidebar-clear:hover { color: var(--color-accent-primary); }
-.chips-toggle:focus-visible, .summary-clear:focus-visible, .sidebar-clear:focus-visible {
-  outline: 2px solid var(--color-accent-primary);
-  outline-offset: 1px;
-  border-radius: 4px;
-}
-
 /* モバイル用: パネル内末尾のクリア導線（≤980pxのみ表示） */
 .sidebar-clear-mobile { display: none; }
 
+/* 日付グループ見出し（smarthr-ui Heading）を控えめな小見出しに */
 .date-head {
-  font-size: 13px;
-  font-weight: 600;
   color: var(--color-text-secondary);
-  margin: 24px 0 8px;
   font-variant-numeric: tabular-nums;
 }
+
+/* レビューカード（smarthr-ui Base）: 画面外はレンダリングをスキップして200件表示を軽く */
 .card {
-  background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 8px;
-  /* 画面外カードのレンダリングをスキップ（200件表示時のスクロール性能） */
   content-visibility: auto;
   contain-intrinsic-size: auto 120px;
 }
-.card-meta {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
-  font-size: 12px; color: var(--color-text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-.badge {
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--color-surface-emphasis);
-  color: var(--color-accent-primary);
-}
+.card-meta { font-variant-numeric: tabular-nums; }
 .stars { color: var(--color-star); letter-spacing: 1px; }
-.tag {
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
-}
-.card-title { font-weight: 600; font-size: 14px; margin: 6px 0 0; }
-.card-body { font-size: 14px; margin: 4px 0 0; white-space: pre-wrap; }
-.card-link { font-size: 12px; color: var(--color-text-link); text-decoration: underline; }
-.card-link:hover { color: var(--color-accent-primary); }
-.card-link:focus-visible { outline: 2px solid var(--color-accent-primary); outline-offset: 1px; border-radius: 2px; }
 
-.empty { color: var(--color-text-secondary); text-align: center; padding: 48px 0; }
-.more {
-  display: block; width: 100%; margin-top: 16px; padding: 8px;
-  font-size: 14px; border: 1px solid var(--color-border); border-radius: 8px;
-  background: var(--color-surface); color: var(--color-text-primary); cursor: pointer;
-  transition: background-color .15s;
-}
-.more:hover { background: var(--color-surface-emphasis); }
-.more:focus-visible { outline: 2px solid var(--color-accent-primary); outline-offset: 1px; }
+.empty-panel { text-align: center; }
 
 /* 検索入力（smarthr-ui SearchInput）を幅いっぱいに */
 .search-field, .search-field input { width: 100%; }
@@ -226,7 +132,6 @@ body {
     border: 0;
     border-radius: 0;
     box-shadow: none;
-    gap: 12px;
   }
   /* フィルター群は「絞り込み」ボタンで開閉（検索は常時表示） */
   .filter-toggle { display: flex; }
@@ -234,9 +139,17 @@ body {
   /* クリア導線: デスクトップ位置（検索直下）は隠し、パネル内末尾に出す */
   .sidebar-clear-desktop { display: none; }
   .sidebar-clear-mobile { display: inline-block; }
-  /* タッチ端末向けにタップ領域を広げる */
-  .chip { min-height: 40px; }
   .summary { position: static; padding-top: 0; }
+  /* タッチ端末向けにチェックボックス/ラジオの行タップ領域を44pxに広げる */
+  .filter-group .smarthr-ui-Checkbox,
+  .filter-group .smarthr-ui-RadioButton {
+    min-height: 44px;
+    align-items: center;
+  }
+  .filter-group .smarthr-ui-Checkbox-label,
+  .filter-group .smarthr-ui-RadioButton-label {
+    padding-block: 11px;
+  }
 }
 
 @media (max-width: 768px) {

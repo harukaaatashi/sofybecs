@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { PageHeading } from "smarthr-ui";
 import type { Item } from "./types";
 import {
   PAGE_SIZE,
@@ -71,7 +72,10 @@ export function App() {
     <>
       <header className="site-header">
         <div className="wrap">
-          <h1 className="site-title">ソフィBe 口コミ一覧</h1>
+          {/* autoPageTitle を切り、document.title に "｜SmartHR" が付くのを防ぐ */}
+          <PageHeading size="L" autoPageTitle={false} className="site-title">
+            ソフィBe 口コミ一覧
+          </PageHeading>
         </div>
       </header>
       <div className="wrap">
