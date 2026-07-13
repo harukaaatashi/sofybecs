@@ -1,10 +1,13 @@
 # ソフィBe 口コミ一覧
 
-全 1216 件（App Store 514件 / Google Play 702件）・最新の口コミ日: 2026-07-10
+全 1217 件（App Store 514件 / Google Play 703件）・最新の口コミ日: 2026-07-10
 
 ※ 表示は直近 300 件まで。全件は [`data/items.json`](data/items.json) にあります。
 
 ## 2026-07-10
+
+- **Google Play** ★★★☆☆ v4.17.0 くま牧場 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
+  > 予測は割とあてになるので旅行の際などには助かるが、さっさと記録して終わらせたいのに逐一記録ありがとうとか全画面に出て自分で閉じないといけないの鬱陶しい。
 
 - **Google Play** ★★★★★ v4.16.0 千葉奈々 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
   > アプリは凄く便利です助かります
@@ -1464,13 +1467,4 @@
 
 - **App Store** ★☆☆☆☆ v4.8.2 _maia_05 — 画面が真っ白で起動しない [↗](https://apps.apple.com/jp/app/id6480158120?see-all=reviews)
   > アプリから連絡を下さいとの事ですが、画面が真っ白なので連絡フォームにたどり着けません
-
-## 2026-01-05
-
-- **App Store** ★☆☆☆☆ v4.8.2 のたみー — 使えないアプリ [↗](https://apps.apple.com/jp/app/id6480158120?see-all=reviews)
-  > 前のアプリの方がはるかに良かった！
-  > AI役に立たんし！あんな使えないAI標準搭載すんな！
-  > 体調記録するその都度出てきやがって！そのくせ質問とかしてもまともに回答出来ないし！
-  > AI非表示設定希望！
-  > 体調記録も色々アイコンからその日の体調記録してんのに、翌日ならないと体調記録アイコン一覧では見れないわけ？当日はその都度記録画面から何にチェックしたっけ、てみないといけないの？めんどくせぇ！！！
 

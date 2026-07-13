@@ -1,6 +1,21 @@
 [
  {
   "source": "google_play",
+  "id": "f26cd596-3af3-47eb-879f-d1b13ff25609",
+  "title": "",
+  "body": "予測は割とあてになるので旅行の際などには助かるが、さっさと記録して終わらせたいのに逐一記録ありがとうとか全画面に出て自分で閉じないといけないの鬱陶しい。",
+  "rating": 3,
+  "author": "くま牧場",
+  "created_at": "2026-07-10T22:50:51",
+  "url": "https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true",
+  "version": "4.17.0",
+  "features": [
+   "記録",
+   "カレンダー"
+  ]
+ },
+ {
+  "source": "google_play",
   "id": "4d7e30cd-1faa-4a76-b5c3-bbfacf41b53d",
   "title": "",
   "body": "アプリは凄く便利です助かります",
