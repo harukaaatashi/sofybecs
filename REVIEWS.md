@@ -1,8 +1,16 @@
 # ソフィBe 口コミ一覧
 
-全 1217 件（App Store 514件 / Google Play 703件）・最新の口コミ日: 2026-07-10
+全 1219 件（App Store 514件 / Google Play 705件）・最新の口コミ日: 2026-07-13
 
 ※ 表示は直近 300 件まで。全件は [`data/items.json`](data/items.json) にあります。
+
+## 2026-07-13
+
+- **Google Play** ★☆☆☆☆ v4.17.0 s灰音 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
+  > アップデートしないとすぐに使用できないのは困る。毎月アップデートしてませんか？そこまでの機能ありますか。ますます日々のチェックをやりたく無くなる。 生理予定日Todayは7/17、生理予定日は14-20日。どういうことでしょう。移行してから使いずらくなった。
+
+- **Google Play** ★★★☆☆ v4.17.0 ady759 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
+  > 自分の体調を記録で残しておけるのが良いです✨️
 
 ## 2026-07-10
 
@@ -1459,12 +1467,4 @@
 
 - **Google Play** ★★★★★ v4.8.2 Y.817 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
   > 他のアプリもダウンロードして入れてみたことがありましたが、一番こちらが簡単で使いやすいです。 おすすめです😙
-
-## 2026-01-06
-
-- **App Store** ★★☆☆☆ v4.8.2 ぶんもち — 日付がズレる [↗](https://apps.apple.com/jp/app/id6480158120?see-all=reviews)
-  > 現在2026年1月6日なのですが、2025年12月6日と表示されてしまい昨年12月の生理日を記録しようとすると「未来の日付には記録できません」と表示されます。また昨年11月の生理日を記録しようとすると「生理周期を飛び越えての記録は出来ません」と表示されます。生理周期を飛び越えての記録とはなんのことでしょう…ソフィさんからということでとても期待してダウンロードしたので、ぜひ改善を求めます。
-
-- **App Store** ★☆☆☆☆ v4.8.2 _maia_05 — 画面が真っ白で起動しない [↗](https://apps.apple.com/jp/app/id6480158120?see-all=reviews)
-  > アプリから連絡を下さいとの事ですが、画面が真っ白なので連絡フォームにたどり着けません
 
