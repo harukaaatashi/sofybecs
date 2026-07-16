@@ -1,6 +1,20 @@
 [
  {
   "source": "google_play",
+  "id": "c5d5fbd1-cf50-4b68-b41c-b4498d691415",
+  "title": "",
+  "body": "重くて開けない時あるけどめっちゃいいアプリ！相談乗ってくれるし対処法(？)的なのもあるし、気分とか症状書くところシンプルでわかりやすいのに細かく分かれててサイコー！",
+  "rating": 5,
+  "author": "山﨑淳也",
+  "created_at": "2026-07-15T09:07:38",
+  "url": "https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true",
+  "version": "",
+  "features": [
+   "チャット"
+  ]
+ },
+ {
+  "source": "google_play",
   "id": "7065c2db-c7eb-43eb-a252-1898dbab5198",
   "title": "",
   "body": "いいね 分かりやすいです!!",
@@ -9,6 +23,20 @@
   "created_at": "2026-07-14T13:05:24",
   "url": "https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true",
   "version": "4.17.0",
+  "features": [
+   "その他"
+  ]
+ },
+ {
+  "source": "app_store",
+  "id": "14302018037",
+  "title": "わ",
+  "body": "余計な機能が多く以前アンインストールしましたが、妊活おりものシートを使うために利用\n妊活おしらせ物質なんていう言葉を大人に使うのは恥ずかしいと思います。誰にでもわかりやすく表現したいという意向も分かりますが、妊娠を考えるのは大人ですので、舐められている気持ちになります。",
+  "rating": 5,
+  "author": "潤いたくて覆いたくて震える",
+  "created_at": "2026-07-14T06:02:36-07:00",
+  "url": "https://apps.apple.com/jp/app/id6480158120?see-all=reviews",
+  "version": "4.17",
   "features": [
    "その他"
   ]

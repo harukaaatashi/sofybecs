@@ -1,13 +1,22 @@
 # ソフィBe 口コミ一覧
 
-全 1223 件（App Store 515件 / Google Play 708件）・最新の口コミ日: 2026-07-14
+全 1225 件（App Store 516件 / Google Play 709件）・最新の口コミ日: 2026-07-15
 
 ※ 表示は直近 300 件まで。全件は [`data/items.json`](data/items.json) にあります。
+
+## 2026-07-15
+
+- **Google Play** ★★★★★ 山﨑淳也 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
+  > 重くて開けない時あるけどめっちゃいいアプリ！相談乗ってくれるし対処法(？)的なのもあるし、気分とか症状書くところシンプルでわかりやすいのに細かく分かれててサイコー！
 
 ## 2026-07-14
 
 - **Google Play** ★★★★★ v4.17.0 佐熊隼華 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
   > いいね 分かりやすいです!!
+
+- **App Store** ★★★★★ v4.17 潤いたくて覆いたくて震える — わ [↗](https://apps.apple.com/jp/app/id6480158120?see-all=reviews)
+  > 余計な機能が多く以前アンインストールしましたが、妊活おりものシートを使うために利用
+  > 妊活おしらせ物質なんていう言葉を大人に使うのは恥ずかしいと思います。誰にでもわかりやすく表現したいという意向も分かりますが、妊娠を考えるのは大人ですので、舐められている気持ちになります。
 
 - **Google Play** ★★★★☆ v4.17.0 risa [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
   > 自分の周期がわからないので前もってお知らせしてくれるので助かってます。機種変しても引き継ぎできてよかったです!
@@ -1459,10 +1468,4 @@
 
 - **Google Play** ★★★★★ Camila Sato [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
   > 整理の相談？とか聞いてくれてありがたい
-
-- **Google Play** ★★★☆☆ v4.8.2 H yagi [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
-  > いちいち記録完了が出てくるのが本当に邪魔
-
-- **Google Play** ★★★☆☆ v4.8.2 Akane Ino [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
-  > 体調のスタンプが色々あって おりものの色とかもあって良い。 その日の体調とトップ画面ですぐ見えるのも 昨日と比較できて見やすい。 コメントで書いた部分も体調の部分で見えるといいな。何文字以内とかでいいから。 立ち上がりが極端に遅いことがある… 私の携帯が悪いのかな…
 
