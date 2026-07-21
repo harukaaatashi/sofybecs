@@ -1,6 +1,35 @@
 [
  {
   "source": "google_play",
+  "id": "0892c25b-ca70-4ea7-a92a-ae8d3a37fe5a",
+  "title": "",
+  "body": "分かりにく まとはずれ",
+  "rating": 1,
+  "author": "山口友紀",
+  "created_at": "2026-07-20T05:34:02",
+  "url": "https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true",
+  "version": "4.17.0",
+  "features": [
+   "その他"
+  ]
+ },
+ {
+  "source": "app_store",
+  "id": "14324779064",
+  "title": "メモの入力が大変",
+  "body": "旧アプリはイラストも機能も大変満足していました。現在のイラストはシンプルモードでも何かイマイチで気分が上がらない💦しかもメモを入力しようとすると、入力画面がキーボードで隠れてしまいスクロールできず、確認しながら入力出来ないです。生理周期と気になる体調を記録したいだけなので、出来ることなら旧アプリに戻りたい‼️",
+  "rating": 1,
+  "author": "ミルクティーアリス",
+  "created_at": "2026-07-19T20:13:12-07:00",
+  "url": "https://apps.apple.com/jp/app/id6480158120?see-all=reviews",
+  "version": "4.17",
+  "features": [
+   "記録",
+   "カレンダー"
+  ]
+ },
+ {
+  "source": "google_play",
   "id": "c263ae72-3409-47dd-80e4-5ef6c17156fc",
   "title": "",
   "body": "女性に便利な体調記録出来ます",

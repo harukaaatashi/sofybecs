@@ -1,10 +1,18 @@
 # ソフィBe 口コミ一覧
 
-全 1231 件（App Store 519件 / Google Play 712件）・最新の口コミ日: 2026-07-19
+全 1233 件（App Store 520件 / Google Play 713件）・最新の口コミ日: 2026-07-20
 
 ※ 表示は直近 300 件まで。全件は [`data/items.json`](data/items.json) にあります。
 
+## 2026-07-20
+
+- **Google Play** ★☆☆☆☆ v4.17.0 山口友紀 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
+  > 分かりにく まとはずれ
+
 ## 2026-07-19
+
+- **App Store** ★☆☆☆☆ v4.17 ミルクティーアリス — メモの入力が大変 [↗](https://apps.apple.com/jp/app/id6480158120?see-all=reviews)
+  > 旧アプリはイラストも機能も大変満足していました。現在のイラストはシンプルモードでも何かイマイチで気分が上がらない💦しかもメモを入力しようとすると、入力画面がキーボードで隠れてしまいスクロールできず、確認しながら入力出来ないです。生理周期と気になる体調を記録したいだけなので、出来ることなら旧アプリに戻りたい‼️
 
 - **Google Play** ★★★★★ v4.17.0 Sae Toyota [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
   > 女性に便利な体調記録出来ます
@@ -1470,14 +1478,4 @@
 
 - **Google Play** ★★★★★ v4.9.0 岸川綾花 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
   > とても、わかりやすくて、 AIチャットで質問もできるので わからないことが知れて、 とても便利でした！
-
-## 2026-01-14
-
-- **Google Play** ★★★★★ v4.8.2 ふーか [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
-  > 知りたいことや困ったことを気軽に相談できる！
-
-## 2026-01-12
-
-- **Google Play** ★★★★★ v4.8.2 稲荷光子（トランセンド・パピ・光子） [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
-  > 人目で自分の調子が分かるのがいい
 
