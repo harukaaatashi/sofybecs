@@ -1,6 +1,34 @@
 [
  {
   "source": "google_play",
+  "id": "3fe0ea91-2821-48cb-b927-3f641fb1b921",
+  "title": "",
+  "body": "笑と",
+  "rating": 4,
+  "author": "田尻夢実",
+  "created_at": "2026-07-21T08:55:01",
+  "url": "https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true",
+  "version": "4.16.0",
+  "features": [
+   "その他"
+  ]
+ },
+ {
+  "source": "app_store",
+  "id": "14328037583",
+  "title": "管理には向かないアプリ",
+  "body": "体重管理を使ってますが、データが半年で消えていく。\nせっかく長期のダイエットの管理としても使ってたのに半年経ってがっかりです",
+  "rating": 2,
+  "author": "Maruiuuuuuuu",
+  "created_at": "2026-07-20T15:41:36-07:00",
+  "url": "https://apps.apple.com/jp/app/id6480158120?see-all=reviews",
+  "version": "4.17",
+  "features": [
+   "記録"
+  ]
+ },
+ {
+  "source": "google_play",
   "id": "0892c25b-ca70-4ea7-a92a-ae8d3a37fe5a",
   "title": "",
   "body": "分かりにく まとはずれ",

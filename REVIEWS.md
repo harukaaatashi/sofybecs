@@ -1,10 +1,19 @@
 # ソフィBe 口コミ一覧
 
-全 1233 件（App Store 520件 / Google Play 713件）・最新の口コミ日: 2026-07-20
+全 1235 件（App Store 521件 / Google Play 714件）・最新の口コミ日: 2026-07-21
 
 ※ 表示は直近 300 件まで。全件は [`data/items.json`](data/items.json) にあります。
 
+## 2026-07-21
+
+- **Google Play** ★★★★☆ v4.16.0 田尻夢実 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
+  > 笑と
+
 ## 2026-07-20
+
+- **App Store** ★★☆☆☆ v4.17 Maruiuuuuuuu — 管理には向かないアプリ [↗](https://apps.apple.com/jp/app/id6480158120?see-all=reviews)
+  > 体重管理を使ってますが、データが半年で消えていく。
+  > せっかく長期のダイエットの管理としても使ってたのに半年経ってがっかりです
 
 - **Google Play** ★☆☆☆☆ v4.17.0 山口友紀 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
   > 分かりにく まとはずれ
@@ -1472,10 +1481,4 @@
 
 - **Google Play** ★★☆☆☆ v4.9.0 ino [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
   > 引き継ぎに従い使っていますが何故かずっと動きが重いです いろいろコラムなどがあって見たいとは思うのですが動作が悪いので見る気にならなくなってしまいます
-
-- **Google Play** ★☆☆☆☆ v4.9.0 mameko [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
-  > なぜソフィアプリ無くしたんでしょうか。ソフィBeはすごく使いづらい、見づらい。重い。開いてまずお知らせ等が出てくるのもストレス。今日の体調を記録させるのも。そのくせ記録した体調は見返しづらい。頭痛がどのくらいの頻度であったかなども見たいのに。
-
-- **Google Play** ★★★★★ v4.9.0 岸川綾花 [↗](https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true)
-  > とても、わかりやすくて、 AIチャットで質問もできるので わからないことが知れて、 とても便利でした！
 
