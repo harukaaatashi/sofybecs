@@ -1,5 +1,47 @@
 [
  {
+  "source": "google_play",
+  "id": "1aa73a43-6c51-4d18-a282-091d55d7a248",
+  "title": "",
+  "body": "とても気に入っていて、すごく良いアプリです 課金や広告の表示も無く見やすいですし、使いやすいです",
+  "rating": 5,
+  "author": "もなかるご.",
+  "created_at": "2026-07-28T12:09:30",
+  "url": "https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true",
+  "version": "4.18.0",
+  "features": [
+   "その他"
+  ]
+ },
+ {
+  "source": "app_store",
+  "id": "14357431008",
+  "title": "チェックシートと併用して妊娠しました",
+  "body": "それまで自己流で排卵日を計算してタイミングを取っていましたが半年ほど続けても妊娠せず。ソフィのおりものチェックシートで排卵日予測→二本線がでたら市販の排卵検査薬でダブルチェックという確認をして、タイミングを取っていったところ、開始から3ヶ月で妊娠することができました。生理周期があまり安定しておらず、毎回検査薬で確認するのはお金がかかり大変だったので、おりものチェックシートはかなり重宝しました。アプリも使いやすく、ありがたかったです。\n本当にありがとうございました！！",
+  "rating": 5,
+  "author": "Njgjyxy",
+  "created_at": "2026-07-28T00:42:31-07:00",
+  "url": "https://apps.apple.com/jp/app/id6480158120?see-all=reviews",
+  "version": "4.18",
+  "features": [
+   "カレンダー"
+  ]
+ },
+ {
+  "source": "google_play",
+  "id": "14c89e2c-7d10-45ca-b1b6-0724d6201b97",
+  "title": "",
+  "body": "本当に予測通りの日に生理が来て、下着を洗う手間が省けます！ 私はあの時間が本当に億劫だったので、大助かりです。",
+  "rating": 5,
+  "author": "江川真彩",
+  "created_at": "2026-07-27T08:28:18",
+  "url": "https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true",
+  "version": "4.17.0",
+  "features": [
+   "カレンダー"
+  ]
+ },
+ {
   "source": "app_store",
   "id": "14344229802",
   "title": "ヘルスケアから基礎体温書き込みしたい",
