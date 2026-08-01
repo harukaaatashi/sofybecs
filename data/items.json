@@ -1,6 +1,81 @@
 [
  {
   "source": "google_play",
+  "id": "cdc84d82-d508-472a-8ae8-8023a7e1d33a",
+  "title": "",
+  "body": "アプリの動作が重すぎてストレスでした。体調管理のために毎日使うものなのにイライラして健康に悪いと思い、違うアプリに乗り換えました。 コラムやら必要以上の情報が多く、入力する欄までかなりスクロールしなければなりません。 そして重いので当然カクつき、画面が固まったりなど。誤タップも多々。 全くおすすめできません。",
+  "rating": 1,
+  "author": "K8",
+  "created_at": "2026-07-31T17:29:39",
+  "url": "https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true",
+  "version": "4.13.1",
+  "features": [
+   "記録",
+   "コンテンツ"
+  ]
+ },
+ {
+  "source": "app_store",
+  "id": "14368674286",
+  "title": "更年期に必要な記録や通知ができない",
+  "body": "更年期については、コラムなどはあるものの、カレンダーは性成熟期向けの記録しかできず、活用できない。カレンダーにホルモン補充療法中の薬の記録（日々通知があるとなおよし）を追加してほしい。\n今現在の気持ちを記録すると、なぜそういう気持ちになるのか一言で説明してくれるところはとてもいい。",
+  "rating": 3,
+  "author": "おもち2022",
+  "created_at": "2026-07-30T18:27:31-07:00",
+  "url": "https://apps.apple.com/jp/app/id6480158120?see-all=reviews",
+  "version": "4.18.2",
+  "features": [
+   "記録",
+   "カレンダー",
+   "レポート",
+   "コンテンツ",
+   "設定"
+  ]
+ },
+ {
+  "source": "app_store",
+  "id": "14365445050",
+  "title": "共有機能が欲しい！",
+  "body": "いつも、お世話になってます。パートナーとアプリの内容を共有できるようにして欲しいです！",
+  "rating": 5,
+  "author": "るやたたまやさた",
+  "created_at": "2026-07-30T00:03:49-07:00",
+  "url": "https://apps.apple.com/jp/app/id6480158120?see-all=reviews",
+  "version": "4.18.2",
+  "features": [
+   "その他"
+  ]
+ },
+ {
+  "source": "google_play",
+  "id": "a4cd62c4-b416-4627-a344-0fa2224bc1f4",
+  "title": "",
+  "body": "更年期のなやみも生理不調も取ったほうが良い栄養から過ごし方のコツまで詳しい",
+  "rating": 5,
+  "author": "太田希望",
+  "created_at": "2026-07-30T05:53:50",
+  "url": "https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true",
+  "version": "4.18.0",
+  "features": [
+   "その他"
+  ]
+ },
+ {
+  "source": "google_play",
+  "id": "9308661e-0c3d-4354-b0e8-c43e22f04ef3",
+  "title": "",
+  "body": "神アプリ！！ 無料でシンプルでわかりやすくて、 簡単にその日の気分と体調を教えてくれて最高です。PMSひどいのでこれで今はこういう時期なんだな、前回もこうだったなってセルフメンタルケアできます。 ひとつだけ、アイコンデザインがおしゃれなんですが！！！地味すぎて！アプリ一覧から探しにくい！それだけです。",
+  "rating": 4,
+  "author": "K S",
+  "created_at": "2026-07-30T05:30:34",
+  "url": "https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true",
+  "version": "4.17.0",
+  "features": [
+   "その他"
+  ]
+ },
+ {
+  "source": "google_play",
   "id": "1aa73a43-6c51-4d18-a282-091d55d7a248",
   "title": "",
   "body": "とても気に入っていて、すごく良いアプリです 課金や広告の表示も無く見やすいですし、使いやすいです",
