@@ -1,5 +1,19 @@
 [
  {
+  "source": "app_store",
+  "id": "14381127628",
+  "title": "アプリ内検索機能が欲しい",
+  "body": "画面がシンプルで見やすく、記録を付けやすいです。\nアプリ内の記録済みのデータ(ピルや任意マーク等)を検索できる機能があったらより使いやすいと感じます。",
+  "rating": 4,
+  "author": "事務員A",
+  "created_at": "2026-08-02T20:24:24-07:00",
+  "url": "https://apps.apple.com/jp/app/id6480158120?see-all=reviews",
+  "version": "4.18.2",
+  "features": [
+   "記録"
+  ]
+ },
+ {
   "source": "google_play",
   "id": "9d0ca532-65c8-48f0-bce0-836cb7435d68",
   "title": "",
