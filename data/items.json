@@ -1,5 +1,34 @@
 [
  {
+  "source": "google_play",
+  "id": "a29919d6-a448-414a-bd2d-22b4ee486b24",
+  "title": "",
+  "body": "いろんな生理記録アプリを使ってますが、自分に欲しい機能を絞れて一番合ってるので使ってます。以前は動作がもっさりしてたけど、なんか早くなりました。改善されましたか？",
+  "rating": 5,
+  "author": "のの",
+  "created_at": "2026-08-05T14:45:15",
+  "url": "https://play.google.com/store/apps/details?id=jp.sofy.be&showAllReviews=true",
+  "version": "4.18.2",
+  "features": [
+   "記録"
+  ]
+ },
+ {
+  "source": "app_store",
+  "id": "14389944380",
+  "title": "ヘルスケア連携出来ない",
+  "body": "ヘルスケア連携がしたくて、設定しようとしたのですが、設定に飛ばされるばかりで、設定のアプリ内から確認してもヘルスケア連携が見つからず。\niPhone12proなので、バージョンが古すぎるとか？\n別件ですが調べたところ、ソフィBeでは生理周期の書き出しは出来るがヘルスケアからの生理周期の連携は出来ないとあったので、手間だなと思い。(2026/08時点)\n生理周期の双方からの連携ができたらいいですね。\nルナルナから乗り換えてたのですが、戻ろうかと思います。",
+  "rating": 3,
+  "author": "desk_hosi",
+  "created_at": "2026-08-05T00:35:52-07:00",
+  "url": "https://apps.apple.com/jp/app/id6480158120?see-all=reviews",
+  "version": "4.18.2",
+  "features": [
+   "カレンダー",
+   "設定"
+  ]
+ },
+ {
   "source": "app_store",
   "id": "14381127628",
   "title": "アプリ内検索機能が欲しい",
