@@ -9,6 +9,7 @@ import {
   lowRatingRate,
   monthRange,
   monthlyTrend,
+  themeBreakdown,
   toggled,
   versionBreakdown,
   type Filters,
@@ -23,6 +24,36 @@ type Props = {
 };
 
 type Axis = "month" | "version";
+type Facet = "feature" | "theme";
+
+/** 見出し横に置く2択の切り替え。左右のブロックで同じ形にして操作を揃える */
+function AxisSwitch<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: T;
+  options: ReadonlyArray<readonly [T, string]>;
+  onChange: (next: T) => void;
+}) {
+  return (
+    <div className="insight-axis" role="group" aria-label={label}>
+      {options.map(([key, text]) => (
+        <button
+          key={key}
+          type="button"
+          className={"insight-axis-btn" + (value === key ? " selected" : "")}
+          aria-pressed={value === key}
+          onClick={() => onChange(key)}
+        >
+          {text}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 const pct = (rate: number) => `${Math.round(rate * 100)}%`;
 
@@ -83,6 +114,7 @@ function InsightRow({ label, total, low, baseline, selected, actionLabel, onClic
  */
 export function InsightPanel({ items, data, filters, onChange }: Props) {
   const [axis, setAxis] = useState<Axis>("month");
+  const [facet, setFacet] = useState<Facet>("feature");
   const [open, setOpen] = useState(false); // モバイルの開閉（デスクトップでは常時表示）
 
   /**
@@ -104,21 +136,50 @@ export function InsightPanel({ items, data, filters, onChange }: Props) {
     () => applyFilters(items, { ...rated, features: new Set<string>() }),
     [items, rated],
   );
+  const themeBase = useMemo(
+    () => applyFilters(items, { ...rated, themes: new Set<string>() }),
+    [items, rated],
+  );
   const ratingNeutral = useMemo(() => applyFilters(items, rated), [items, rated]);
 
   const months = useMemo(() => monthlyTrend(periodBase), [periodBase]);
   const versions = useMemo(() => versionBreakdown(versionBase), [versionBase]);
   const features = useMemo(() => featureBreakdown(featureBase), [featureBase]);
+  const themes = useMemo(() => themeBreakdown(themeBase), [themeBase]);
 
   // 基準線は各ブロックの母集団の値。見出しの数字は一覧と揃えるため絞り込み後の値を使う
   const axisBaseline = useMemo(
     () => lowRatingRate(axis === "month" ? periodBase : versionBase).rate,
     [axis, periodBase, versionBase],
   );
-  const featureBaseline = useMemo(() => lowRatingRate(featureBase).rate, [featureBase]);
+  const facetBaseline = useMemo(
+    () => lowRatingRate(facet === "feature" ? featureBase : themeBase).rate,
+    [facet, featureBase, themeBase],
+  );
   const overall = useMemo(() => lowRatingRate(ratingNeutral), [ratingNeutral]);
 
   if (!data.length) return null;
+
+  // 機能とテーマは持っているキーが違うだけで見せ方は同じなので、行の形に揃えてから描く
+  const rows =
+    facet === "feature"
+      ? features.map((f) => ({
+          key: f.feature,
+          label: f.feature,
+          total: f.total,
+          low: f.low,
+          selected: filters.features.has(f.feature),
+          onClick: () =>
+            onChange({ ...filters, features: toggled(filters.features, f.feature) }),
+        }))
+      : themes.map((t) => ({
+          key: t.key,
+          label: t.label,
+          total: t.total,
+          low: t.low,
+          selected: filters.themes.has(t.key),
+          onClick: () => onChange({ ...filters, themes: toggled(filters.themes, t.key) }),
+        }));
 
   const lowOnly = filters.ratings.size === 2 && filters.ratings.has(1) && filters.ratings.has(2);
 
@@ -169,24 +230,15 @@ export function InsightPanel({ items, data, filters, onChange }: Props) {
                 <Heading type="blockTitle" className="insight-head">
                   不満の割合
                 </Heading>
-                <div className="insight-axis" role="group" aria-label="集計の軸">
-                  {(
-                    [
-                      ["month", "月別"],
-                      ["version", "バージョン別"],
-                    ] as const
-                  ).map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      className={"insight-axis-btn" + (axis === value ? " selected" : "")}
-                      aria-pressed={axis === value}
-                      onClick={() => setAxis(value)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
+                <AxisSwitch
+                  label="集計の軸"
+                  value={axis}
+                  options={[
+                    ["month", "月別"],
+                    ["version", "バージョン別"],
+                  ] as const}
+                  onChange={setAxis}
+                />
               </Cluster>
 
               <ul className="insight-rows">
@@ -240,35 +292,41 @@ export function InsightPanel({ items, data, filters, onChange }: Props) {
 
           <Section className="insight-block">
             <Stack gap="XXS" as="div">
-              <Heading type="blockTitle" className="insight-head">
-                不満が集まっている機能
-              </Heading>
-              {features.length ? (
+              <Cluster gap="XS" align="center" as="div">
+                <Heading type="blockTitle" className="insight-head">
+                  不満が集まっている
+                </Heading>
+                {/* 機能=画面単位、テーマ=症状単位。同じ口コミでも切り口が違う */}
+                <AxisSwitch
+                  label="分類の切り口"
+                  value={facet}
+                  options={
+                    [
+                      ["feature", "機能別"],
+                      ["theme", "テーマ別"],
+                    ] as const
+                  }
+                  onChange={setFacet}
+                />
+              </Cluster>
+              {rows.length ? (
                 <ul className="insight-rows">
-                  {features.map((f) => {
-                    const selected = filters.features.has(f.feature);
-                    return (
-                      <InsightRow
-                        key={f.feature}
-                        label={f.feature}
-                        total={f.total}
-                        low={f.low}
-                        baseline={featureBaseline}
-                        selected={selected}
-                        actionLabel={selected ? "この機能の絞り込みを解除" : "この機能を追加"}
-                        onClick={() =>
-                          onChange({
-                            ...filters,
-                            features: toggled(filters.features, f.feature),
-                          })
-                        }
-                      />
-                    );
-                  })}
+                  {rows.map((r) => (
+                    <InsightRow
+                      key={r.key}
+                      label={r.label}
+                      total={r.total}
+                      low={r.low}
+                      baseline={facetBaseline}
+                      selected={r.selected}
+                      actionLabel={r.selected ? "この絞り込みを解除" : "これを追加"}
+                      onClick={r.onClick}
+                    />
+                  ))}
                 </ul>
               ) : (
                 <Text size="S" color="TEXT_GREY">
-                  この条件では、率を出せるだけの件数（{MIN_RATE_SAMPLE}件以上）がある機能がありません
+                  この条件では、率を出せるだけの件数（{MIN_RATE_SAMPLE}件以上）がある項目がありません
                 </Text>
               )}
             </Stack>

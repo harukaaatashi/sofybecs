@@ -3,6 +3,7 @@ import type { Item } from "../types";
 import {
   FEATURES,
   SOURCE_LABEL,
+  THEMES,
   formatCount,
   hasActiveFilter,
   hasPeriodFilter,
@@ -61,6 +62,12 @@ export function SummaryBar({
     active.push({
       label: f,
       remove: () => onChange({ ...filters, features: toggled(filters.features, f) }),
+    });
+  }
+  for (const t of THEMES.filter((t) => filters.themes.has(t.key))) {
+    active.push({
+      label: t.label,
+      remove: () => onChange({ ...filters, themes: toggled(filters.themes, t.key) }),
     });
   }
   for (const v of versions.filter((v) => filters.versions.has(v))) {

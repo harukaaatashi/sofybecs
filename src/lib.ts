@@ -16,6 +16,39 @@ export const FEATURES = [
   "その他",
 ] as const;
 
+/**
+ * 観測テーマ。機能タグ（画面単位）では見えない「症状単位」の切り口。
+ *
+ * 自動抽出（n-gram）も試したが、形態素解析器なしでは「に残」「スで」のような
+ * 断片が4割混じって使い物にならず、解析器を積むのはバンドル制約に反するため、
+ * 実データを見て決めた固定リストにしている。増減はここを編集する。
+ */
+export const THEMES = [
+  { key: "migration", label: "旧アプリ移行", pattern: /前のアプリ|旧アプリ|元のアプリ|以前のアプリ|戻して|戻したい|リニューアル|アップデート前/ },
+  { key: "sync", label: "同期・消失", pattern: /データが消え|記録が消え|消えた|同期|引き継|バックアップ/ },
+  { key: "prediction", label: "予測のズレ", pattern: /予測|ずれ|ズレ|当たらない|周期が/ },
+  { key: "auth", label: "ログイン", pattern: /ログイン|パスワード|アカウント|会員登録/ },
+  { key: "performance", label: "重い・落ちる", pattern: /重い|遅い|もっさり|固まる|落ちる|強制終了|開かない|起動しない/ },
+  { key: "notification", label: "通知", pattern: /通知|お知らせ/ },
+  { key: "ads", label: "広告・CM", pattern: /広告|CM|コマーシャル/ },
+  { key: "billing", label: "課金・特典", pattern: /課金|有料|ポイント|プレゼント|応募/ },
+] as const;
+
+export const THEME_LABEL: Record<string, string> = Object.fromEntries(
+  THEMES.map((t) => [t.key, t.label]),
+);
+
+// 絞り込みのたびに全件へ正規表現をかけ直さないよう、1件あたり1回だけ判定して覚える
+const themeCache = new WeakMap<Item, string[]>();
+export function themesOf(item: Item): string[] {
+  const cached = themeCache.get(item);
+  if (cached) return cached;
+  const text = `${item.title || ""} ${item.body || ""}`;
+  const hit = THEMES.filter((t) => t.pattern.test(text)).map((t) => t.key);
+  themeCache.set(item, hit);
+  return hit;
+}
+
 export const PAGE_SIZE = 200;
 export const VERSION_LIMIT = 8; // バージョン群の折りたたみ時に表示する最新件数
 export const TREND_MONTHS = 12; // 傾向パネルの月次推移で見せる月数
@@ -46,6 +79,8 @@ export type Filters = {
   versions: Set<string>;
   features: Set<string>;
   query: string;
+  /** 観測テーマ（症状単位）。傾向パネルからのみ操作する */
+  themes: Set<string>;
   /** 期間の内部表現。YYYY-MM-DD、空文字は無制限。プリセットも月クリックもここに落とす */
   from: string;
   to: string;
@@ -58,6 +93,7 @@ export const hasActiveFilter = (f: Filters): boolean =>
   f.ratings.size > 0 ||
   f.versions.size > 0 ||
   f.features.size > 0 ||
+  f.themes.size > 0 ||
   hasPeriodFilter(f);
 
 export const activeFilterCount = (f: Filters): number =>
@@ -65,7 +101,8 @@ export const activeFilterCount = (f: Filters): number =>
   (hasPeriodFilter(f) ? 1 : 0) +
   f.ratings.size +
   f.versions.size +
-  f.features.size;
+  f.features.size +
+  f.themes.size;
 
 export function applyFilters(items: Item[], f: Filters): Item[] {
   const q = f.query.trim().toLowerCase();
@@ -81,6 +118,7 @@ export function applyFilters(items: Item[], f: Filters): Item[] {
     if (f.ratings.size && !(d.rating != null && f.ratings.has(d.rating))) return false;
     if (f.versions.size && !f.versions.has(verKey(d))) return false;
     if (f.features.size && !(d.features || ["その他"]).some((x) => f.features.has(x))) return false;
+    if (f.themes.size && !themesOf(d).some((x) => f.themes.has(x))) return false;
     if (words.length) {
       const text = `${d.title || ""} ${d.body || ""} ${d.author || ""}`.toLowerCase();
       if (!words.every((w) => text.includes(w))) return false;
@@ -140,6 +178,7 @@ export function filtersToSearch(f: Filters): string {
   if (f.ratings.size) p.set("ratings", [...f.ratings].sort((a, b) => b - a).join(","));
   if (f.features.size) p.set("features", [...f.features].join(","));
   if (f.versions.size) p.set("versions", [...f.versions].join(","));
+  if (f.themes.size) p.set("themes", [...f.themes].join(","));
   if (f.from) p.set("from", f.from);
   if (f.to) p.set("to", f.to);
   const s = p.toString();
@@ -163,6 +202,9 @@ export function filtersFromSearch(search: string): Filters {
     ),
     features: new Set((p.get("features") || "").split(",").filter(Boolean)),
     versions: new Set((p.get("versions") || "").split(",").filter(Boolean)),
+    themes: new Set(
+      (p.get("themes") || "").split(",").filter((k) => k in THEME_LABEL),
+    ),
     from: asDay(p.get("from")),
     to: asDay(p.get("to")),
   };
@@ -279,6 +321,28 @@ export function versionBreakdown(items: Item[], limit = TREND_MONTHS): VersionSt
     })
     .slice(0, limit)
     .reverse(); // 古い→新しい。上から下へ時間が進む月次推移と向きを揃える
+}
+
+export type ThemeStat = { key: string; label: string; total: number; low: number; rate: number };
+
+/**
+ * テーマ別の★1-2率。1件が複数テーマに該当しうるので合計は全件数と一致しない。
+ * どのテーマにも当たらない口コミは、無理に分類せずどこにも数えない。
+ */
+export function themeBreakdown(items: Item[]): ThemeStat[] {
+  const counts = new Map<string, ThemeStat>();
+  for (const d of items) {
+    for (const key of themesOf(d)) {
+      const stat = counts.get(key) || { key, label: THEME_LABEL[key], total: 0, low: 0, rate: 0 };
+      stat.total += 1;
+      if (isLowRating(d)) stat.low += 1;
+      counts.set(key, stat);
+    }
+  }
+  return [...counts.values()]
+    .filter((s) => s.total >= MIN_RATE_SAMPLE)
+    .map((s) => ({ ...s, rate: s.low / s.total }))
+    .sort((a, b) => b.rate - a.rate || b.total - a.total);
 }
 
 export type FeatureStat = { feature: string; total: number; low: number; rate: number };
