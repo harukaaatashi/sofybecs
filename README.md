@@ -37,7 +37,9 @@ GitHub Actions (cron)
   → collector/main.py
       ├ sources/app_store.py    … RSSフィードから最新レビュー取得
       ├ sources/google_play.py  … 最新レビュー取得
-      ├ features.py             … 機能タグ分類（HOME/記録/チャット/カレンダー/レポート/コンテンツ/設定/その他）
+      ├ features.py             … 2軸のタグ分類
+      │                            features（画面）: HOME/記録/チャット/カレンダー/レポート/コンテンツ/設定/アプリ全体/その他
+      │                            topics（症状）: 動作・安定性/旧アプリ移行/同期・データ消失/予測精度/ログイン/通知/広告/課金・特典/使い勝手・UI/表現・言葉づかい
       │                            ANTHROPIC_API_KEY があればClaude Haikuが文脈で判定、無ければキーワード
       ├ store.py                … data/items.json に蓄積し REVIEWS.md を生成
       ├ state/seen.json         … 通知済みIDを記録（Actionsがコミットして永続化）
@@ -54,7 +56,7 @@ GitHub Actions (cron)
    - https://api.slack.com/apps → Create New App → Incoming Webhooks を有効化 → 通知先チャンネルを選んでWebhook URLを取得
 3. **リポジトリの Settings → Secrets and variables → Actions** に登録（すべて任意）:
    - `SLACK_WEBHOOK_URL`（Slack通知したい場合）
-   - `ANTHROPIC_API_KEY`（機能タグ分類を Claude で補助したい場合）
+   - `ANTHROPIC_API_KEY`（タグ分類を Claude で補助したい場合）
 4. Actions タブから `collect-reviews` を **Run workflow** で手動実行して動作確認
 
 ### 内部向けサイト配信
@@ -101,7 +103,8 @@ npm run build                            # INTERNAL_SITE_EXPORT なし → 案�
 | 変数 | 意味 | デフォルト |
 |---|---|---|
 | `SLACK_WEBHOOK_URL` | 通知先Webhook。未設定ならSlack通知をスキップ（一覧のみ更新） | なし |
-| `ANTHROPIC_API_KEY` | Claudeでの機能タグ分類。未設定ならキーワード分類のみ | なし |
+| `ANTHROPIC_API_KEY` | Claudeでのタグ分類。未設定ならキーワード分類のみ（費用ゼロ・精度は落ちる） | なし |
+| `RECLASSIFY` | `1` で既存の全口コミを付け直す。分類の定義を変えたときの1回きりのバックフィル用 | なし |
 | `APP_STORE_ENABLED` | `0` で App Store 収集を止める | `1` |
 | `GOOGLE_PLAY_ENABLED` | `0` で Google Play 収集を止める | `1` |
 | `DRY_RUN` | `1` でSlack投稿せず表示のみ | なし |

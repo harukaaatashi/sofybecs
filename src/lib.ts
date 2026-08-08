@@ -13,25 +13,31 @@ export const FEATURES = [
   "レポート",
   "コンテンツ",
   "設定",
+  // 画面が特定できない話の受け皿。これが無いと行き場のない不満が HOME に流れ込む
+  "アプリ全体",
   "その他",
 ] as const;
 
 /**
- * 観測テーマ。機能タグ（画面単位）では見えない「症状単位」の切り口。
+ * 症状・観点の軸。機能タグ（画面単位）では見えない切り口。
  *
- * 自動抽出（n-gram）も試したが、形態素解析器なしでは「に残」「スで」のような
- * 断片が4割混じって使い物にならず、解析器を積むのはバンドル制約に反するため、
- * 実データを見て決めた固定リストにしている。増減はここを編集する。
+ * key は収集側（collector/features.py の TOPIC_DEFS）のタグ名と一致させる。
+ * label はパネルのラベル列（6.5em）に収まる短縮名。
+ *
+ * pattern は topics を持たない古いデータ向けのフォールバック。収集側の
+ * バックフィルが済めば使われなくなるが、精度は正規表現より分類器のほうが高い。
  */
 export const THEMES = [
-  { key: "migration", label: "旧アプリ移行", pattern: /前のアプリ|旧アプリ|元のアプリ|以前のアプリ|戻して|戻したい|リニューアル|アップデート前/ },
-  { key: "sync", label: "同期・消失", pattern: /データが消え|記録が消え|消えた|同期|引き継|バックアップ/ },
-  { key: "prediction", label: "予測のズレ", pattern: /予測|ずれ|ズレ|当たらない|周期が/ },
-  { key: "auth", label: "ログイン", pattern: /ログイン|パスワード|アカウント|会員登録/ },
-  { key: "performance", label: "重い・落ちる", pattern: /重い|遅い|もっさり|固まる|落ちる|強制終了|開かない|起動しない/ },
-  { key: "notification", label: "通知", pattern: /通知|お知らせ/ },
-  { key: "ads", label: "広告・CM", pattern: /広告|CM|コマーシャル/ },
-  { key: "billing", label: "課金・特典", pattern: /課金|有料|ポイント|プレゼント|応募/ },
+  { key: "旧アプリ移行", label: "旧アプリ移行", pattern: /前のアプリ|旧アプリ|元のアプリ|以前のアプリ|戻して|戻したい|リニューアル|アップデート前/ },
+  { key: "同期・データ消失", label: "同期・消失", pattern: /データが消え|記録が消え|消えた|同期|引き継|バックアップ/ },
+  { key: "予測精度", label: "予測のズレ", pattern: /予測|ずれ|ズレ|当たらない|周期が/ },
+  { key: "ログイン", label: "ログイン", pattern: /ログイン|パスワード|アカウント|会員登録/ },
+  { key: "動作・安定性", label: "重い・落ちる", pattern: /重い|遅い|もっさり|固まる|落ちる|強制終了|開かない|起動しない/ },
+  { key: "通知", label: "通知", pattern: /通知|お知らせ/ },
+  { key: "広告", label: "広告・CM", pattern: /広告|CM|コマーシャル/ },
+  { key: "課金・特典", label: "課金・特典", pattern: /課金|有料|ポイント|プレゼント|応募/ },
+  { key: "使い勝手・UI", label: "使い勝手", pattern: /使いにく|使いづら|分かりにく|わかりにく|ごちゃ|見づらい|見にくい/ },
+  { key: "表現・言葉づかい", label: "言葉づかい", pattern: /言葉|言い方|呼び方|表現が/ },
 ] as const;
 
 export const THEME_LABEL: Record<string, string> = Object.fromEntries(
@@ -43,8 +49,12 @@ const themeCache = new WeakMap<Item, string[]>();
 export function themesOf(item: Item): string[] {
   const cached = themeCache.get(item);
   if (cached) return cached;
-  const text = `${item.title || ""} ${item.body || ""}`;
-  const hit = THEMES.filter((t) => t.pattern.test(text)).map((t) => t.key);
+  // 収集側で分類済みならそれを使う。無い場合だけ正規表現で当てる
+  const hit = item.topics
+    ? item.topics.filter((t) => t in THEME_LABEL)
+    : THEMES.filter((t) => t.pattern.test(`${item.title || ""} ${item.body || ""}`)).map(
+        (t) => t.key,
+      );
   themeCache.set(item, hit);
   return hit;
 }

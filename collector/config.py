@@ -19,6 +19,8 @@ SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL", "")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 DRY_RUN = os.environ.get("DRY_RUN", "") == "1"
 FORCE_RUN = os.environ.get("FORCE_RUN", "") == "1"
+# 分類の定義を変えたときに、既存の全口コミを付け直す（1回きりのバックフィル用）
+RECLASSIFY = os.environ.get("RECLASSIFY", "") == "1"
 
 # 1回の実行でSlackに流す最大件数（初回や障害復帰時の洪水防止）
 MAX_POSTS_PER_RUN = int(os.environ.get("MAX_POSTS_PER_RUN", "20"))

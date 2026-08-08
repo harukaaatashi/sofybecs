@@ -4,6 +4,7 @@ import json
 import os
 from datetime import datetime, timezone
 
+from . import config
 from .features import classify_texts
 from .models import Item
 
@@ -56,12 +57,19 @@ def merge(items: list[Item]) -> list[dict]:
                 "version": i.extra.get("version", ""),
             }
         )
-    # 機能タグが無いものだけ分類する（付与済みタグは保持）
-    untagged = [d for d in data if not d.get("features")]
+    # タグが無いものだけ分類する（付与済みタグは保持）。
+    # topics は後から足した軸なので、features だけ持つ古いデータも未分類として拾う。
+    # RECLASSIFY=1 で全件付け直す（分類の定義を変えたときの1回きりのバックフィル用）。
+    if config.RECLASSIFY:
+        untagged = data
+    else:
+        untagged = [d for d in data if not d.get("features") or "topics" not in d]
     if untagged:
+        print(f"[features] {len(untagged)}件を分類します")
         tags = classify_texts([f"{d.get('title', '')} {d.get('body', '')}" for d in untagged])
         for d, t in zip(untagged, tags):
-            d["features"] = t
+            d["features"] = t["features"]
+            d["topics"] = t["topics"]
     data.sort(key=_sort_key, reverse=True)
     os.makedirs(os.path.dirname(DATA_FILE) or ".", exist_ok=True)
     with open(DATA_FILE, "w", encoding="utf-8") as f:

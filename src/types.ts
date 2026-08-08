@@ -9,4 +9,6 @@ export type Item = {
   url: string;
   version?: string;
   features?: string[];
+  /** 症状・観点（収集側の分類。バックフィル前のデータには存在しない） */
+  topics?: string[];
 };
