@@ -226,6 +226,8 @@ export const PERIOD_PRESETS: PeriodPreset[] = [
 export function shiftDay(day: string, days: number): string {
   const d = new Date(`${day}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);
+  // 日付として読めない値が来ても画面ごと落とさない（表示用のプレースホルダ等）
+  if (Number.isNaN(d.getTime())) return "";
   return d.toISOString().slice(0, 10);
 }
 
@@ -255,6 +257,23 @@ export function periodLabel(f: Filters, latestDay: string): string {
   if (f.from && f.to && f.from.slice(0, 7) === f.to.slice(0, 7)) return f.from.slice(0, 7);
   if (f.from && f.to) return `${f.from} 〜 ${f.to}`;
   return f.from ? `${f.from} 以降` : `${f.to} 以前`;
+}
+
+/**
+ * いま見ている期間の直前に並ぶ、同じ長さの期間を返す。
+ * 「前より良くなったか」を測る比較対象。期間で絞っていないときは比較できない。
+ *
+ * バージョン単位の比較は採らなかった: 1バージョンあたり10〜40件しかなく、
+ * 機能やテーマで割ると1セル数件になって率が意味を持たないため。
+ */
+export function previousRange(f: Filters, latestDay: string): { from: string; to: string } | null {
+  if (!f.from) return null;
+  const end = f.to || latestDay;
+  if (!end || end < f.from) return null;
+  const days = Math.round(
+    (Date.parse(`${end}T00:00:00Z`) - Date.parse(`${f.from}T00:00:00Z`)) / 86400000,
+  );
+  return { from: shiftDay(f.from, -(days + 1)), to: shiftDay(f.from, -1) };
 }
 
 /** その月の1日〜末日を YYYY-MM から作る */

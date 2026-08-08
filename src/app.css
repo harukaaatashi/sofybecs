@@ -175,7 +175,8 @@ body {
   display: grid;
   /* ラベル列は固定幅。行ごとに幅が変わるとバーの開始位置が揃わず比較できなくなる。
      テーマ名（最長6文字）が省略されない幅にしてある */
-  grid-template-columns: 6.5em 1fr auto;
+  /* 4列目は比較時の差分。無いときは幅0になるので通常時のレイアウトは変わらない */
+  grid-template-columns: 6.5em 1fr auto auto;
   align-items: center;
   gap: 8px;
   width: 100%;
@@ -249,6 +250,17 @@ body {
   font-variant-numeric: tabular-nums;
 }
 .insight-rate { font-weight: 700; }
+/* 前の期間との差（パーセントポイント）。色だけでなく▲▼と符号でも向きを示す */
+.insight-delta {
+  min-width: 3.2em;
+  text-align: right;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+.insight-delta.worse { color: var(--color-alert); font-weight: 700; }
+.insight-delta.better { color: var(--color-accent-primary); font-weight: 700; }
+.insight-delta.none { color: var(--color-text-inactive); }
 .insight-sub { color: var(--color-text-secondary); font-size: 11px; }
 
 /* 日付グループ見出し（smarthr-ui Heading）を控えめな小見出しに */

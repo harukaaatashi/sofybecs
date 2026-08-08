@@ -19,7 +19,8 @@ type Props = {
   data: Item[];
   total: number;
   shownCount: number;
-  latestDate: string;
+  /** データ内の最新レビュー日。読み込み前は空文字（表示だけプレースホルダに落とす） */
+  latestDay: string;
   loadState: "loading" | "ready" | "error";
   filters: Filters;
   versions: string[];
@@ -32,7 +33,7 @@ export function SummaryBar({
   data,
   total,
   shownCount,
-  latestDate,
+  latestDay,
   loadState,
   filters,
   versions,
@@ -42,7 +43,7 @@ export function SummaryBar({
   const active: Array<{ label: string; remove: () => void }> = [];
   if (hasPeriodFilter(filters)) {
     active.push({
-      label: periodLabel(filters, latestDate),
+      label: periodLabel(filters, latestDay),
       remove: () => onChange({ ...filters, from: "", to: "" }),
     });
   }
@@ -89,7 +90,7 @@ export function SummaryBar({
             shownCount === total
               ? `${formatCount(total)} 件`
               : `${formatCount(total)} 件中 ${formatCount(shownCount)} 件`
-          } ・ データ最終更新 ${latestDate}`}
+          } ・ データ最終更新 ${latestDay || "-"}`}
       </Text>
       {loadState === "ready" && shownCount > 0 && (
         <CopyButton
@@ -101,7 +102,7 @@ export function SummaryBar({
             const conditions = active.length ? `（${active.map((a) => a.label).join(" / ")}）` : "";
             return itemsToMarkdown(
               data,
-              `ソフィBe 口コミ${conditions} ${formatCount(shownCount)} 件 ・ データ最終更新 ${latestDate}`,
+              `ソフィBe 口コミ${conditions} ${formatCount(shownCount)} 件 ・ データ最終更新 ${latestDay || "-"}`,
             );
           }}
         />

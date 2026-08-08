@@ -9,6 +9,7 @@ import {
   lowRatingRate,
   monthRange,
   monthlyTrend,
+  previousRange,
   themeBreakdown,
   toggled,
   versionBreakdown,
@@ -17,6 +18,8 @@ import {
 
 type Props = {
   items: Item[];
+  /** 「直近N日」の基準日。前の期間を割り出すのに使う */
+  latestDay: string;
   /** 現在の絞り込み結果。見出しの全体値はこれを使う（一覧の件数と食い違わないように） */
   data: Item[];
   filters: Filters;
@@ -66,17 +69,36 @@ type RowProps = {
   selected: boolean;
   actionLabel: string;
   onClick: () => void;
+  /** 前の期間の★1-2率。比較しないとき、または前の期間の母数が足りないときは null */
+  previous?: number | null;
 };
 
 /** 母数が十分なら★1-2率のバー、足りなければ率を出さず件数だけ（DESIGN.md §7） */
-function InsightRow({ label, total, low, baseline, selected, actionLabel, onClick }: RowProps) {
+function InsightRow({
+  label,
+  total,
+  low,
+  baseline,
+  selected,
+  actionLabel,
+  onClick,
+  // undefined = 比較していない（列ごと出さない）／null = 比較中だが前の期間の母数が足りない
+  previous,
+}: RowProps) {
   const enough = total >= MIN_RATE_SAMPLE;
   const rate = total ? low / total : 0;
+  // 率の差はパーセントポイントで出す。「52%が8%増えた」との読み違いを避ける
+  const deltaPt = enough && previous != null ? Math.round((rate - previous) * 100) : null;
   const detail =
     total === 0
       ? "口コミなし"
       : enough
-        ? `${formatCount(total)}件中 星1・2 が ${formatCount(low)}件（${pct(rate)}）`
+        ? `${formatCount(total)}件中 星1・2 が ${formatCount(low)}件（${pct(rate)}）` +
+          (deltaPt == null
+            ? ""
+            : deltaPt === 0
+              ? "、前の期間から変化なし"
+              : `、前の期間から ${Math.abs(deltaPt)}ポイント${deltaPt > 0 ? "悪化" : "改善"}`)
         : `${formatCount(total)}件（率を出すには件数が足りません）`;
 
   return (
@@ -102,6 +124,21 @@ function InsightRow({ label, total, low, baseline, selected, actionLabel, onClic
           <span className="insight-rate">{enough ? pct(rate) : "—"}</span>
           <span className="insight-sub">{formatCount(total)}件</span>
         </span>
+        {previous !== undefined && (
+          <span
+            className={
+              "insight-delta" +
+              (deltaPt == null ? " none" : deltaPt > 0 ? " worse" : deltaPt < 0 ? " better" : "")
+            }
+            aria-hidden="true"
+          >
+            {deltaPt == null
+              ? "—"
+              : deltaPt === 0
+                ? "±0"
+                : `${deltaPt > 0 ? "▲" : "▼"}${Math.abs(deltaPt)}`}
+          </span>
+        )}
       </button>
     </li>
   );
@@ -112,9 +149,10 @@ function InsightRow({ label, total, low, baseline, selected, actionLabel, onClic
  * 月別／バージョン別と機能別の★1-2率を並べ、行クリックで一覧の絞り込みへ着地させる。
  * 行はトグル（複数選択可）で、選択状態はサイドバーの絞り込みと同じ値を指す。
  */
-export function InsightPanel({ items, data, filters, onChange }: Props) {
+export function InsightPanel({ items, latestDay, data, filters, onChange }: Props) {
   const [axis, setAxis] = useState<Axis>("month");
   const [facet, setFacet] = useState<Facet>("feature");
+  const [compare, setCompare] = useState(false);
   const [open, setOpen] = useState(false); // モバイルの開閉（デスクトップでは常時表示）
 
   /**
@@ -140,6 +178,19 @@ export function InsightPanel({ items, data, filters, onChange }: Props) {
     () => applyFilters(items, { ...rated, themes: new Set<string>() }),
     [items, rated],
   );
+
+  // 直前に並ぶ同じ長さの期間。期間で絞っていなければ比較対象がない
+  const prev = useMemo(() => previousRange(filters, latestDay), [filters, latestDay]);
+  const prevRates = useMemo(() => {
+    if (!prev || !compare) return null;
+    const base = { ...rated, ...prev };
+    const map = new Map<string, number>();
+    for (const s of featureBreakdown(applyFilters(items, { ...base, features: new Set<string>() })))
+      map.set(s.feature, s.rate);
+    for (const s of themeBreakdown(applyFilters(items, { ...base, themes: new Set<string>() })))
+      map.set(s.key, s.rate);
+    return map;
+  }, [items, rated, prev, compare]);
   const ratingNeutral = useMemo(() => applyFilters(items, rated), [items, rated]);
 
   const months = useMemo(() => monthlyTrend(periodBase), [periodBase]);
@@ -309,6 +360,18 @@ export function InsightPanel({ items, data, filters, onChange }: Props) {
                   onChange={setFacet}
                 />
               </Cluster>
+              {/* 比較は期間で絞っているときだけ成立する。何と比べているかは必ず明示する */}
+              {prev ? (
+                <Checkbox checked={compare} onChange={() => setCompare(!compare)}>
+                  <Text size="XS" color="TEXT_GREY">
+                    前の期間（{prev.from} 〜 {prev.to}）と比べる
+                  </Text>
+                </Checkbox>
+              ) : (
+                <Text size="XS" color="TEXT_GREY">
+                  期間で絞ると、前の同じ長さの期間と比べられます
+                </Text>
+              )}
               {rows.length ? (
                 <ul className="insight-rows">
                   {rows.map((r) => (
@@ -321,6 +384,7 @@ export function InsightPanel({ items, data, filters, onChange }: Props) {
                       selected={r.selected}
                       actionLabel={r.selected ? "この絞り込みを解除" : "これを追加"}
                       onClick={r.onClick}
+                      previous={prevRates ? (prevRates.get(r.key) ?? null) : undefined}
                     />
                   ))}
                 </ul>

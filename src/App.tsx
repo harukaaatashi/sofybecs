@@ -104,14 +104,20 @@ export function App() {
               data={data}
               total={items.length}
               shownCount={data.length}
-              latestDate={latestDay || "-"}
+              latestDay={latestDay}
               loadState={loadState}
               filters={filters}
               versions={versions}
               onChange={setFilters}
               onClear={clearFilters}
             />
-            <InsightPanel items={items} data={data} filters={filters} onChange={setFilters} />
+            <InsightPanel
+              items={items}
+              latestDay={latestDay}
+              data={data}
+              filters={filters}
+              onChange={setFilters}
+            />
             <ReviewList
               data={data}
               shown={shown}
