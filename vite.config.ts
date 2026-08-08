@@ -24,6 +24,8 @@ function serveItemsJson(): Plugin {
 
 export default defineConfig({
   plugins: [react(), serveItemsJson()],
+  // 既定ポートが埋まっているときに割り当てられたポートで起動できるようにする
+  server: process.env.PORT ? { port: Number(process.env.PORT) } : undefined,
   build: {
     outDir: "_site",
     emptyOutDir: true,

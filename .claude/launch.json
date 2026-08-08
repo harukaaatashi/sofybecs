@@ -10,8 +10,9 @@
     {
       "name": "vite-dev",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "--port", "8769"],
-      "port": 8769
+      "runtimeArgs": ["vite"],
+      "port": 8769,
+      "autoPort": true
     }
   ]
 }

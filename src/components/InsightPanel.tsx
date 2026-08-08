@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Base, Checkbox, Cluster, Heading, Section, Stack, Text } from "smarthr-ui";
 import type { Item } from "../types";
+import { CrossTable } from "./CrossTable";
 import {
   MIN_RATE_SAMPLE,
   applyFilters,
@@ -176,6 +177,11 @@ export function InsightPanel({ items, latestDay, data, filters, onChange }: Prop
   );
   const themeBase = useMemo(
     () => applyFilters(items, { ...rated, themes: new Set<string>() }),
+    [items, rated],
+  );
+  // クロス表は機能とテーマの両方を軸にするので、両方の絞り込みを外した母集団を見る
+  const crossBase = useMemo(
+    () => applyFilters(items, { ...rated, features: new Set<string>(), themes: new Set<string>() }),
     [items, rated],
   );
 
@@ -396,6 +402,9 @@ export function InsightPanel({ items, latestDay, data, filters, onChange }: Prop
             </Stack>
           </Section>
         </div>
+
+        {/* 2つのランキングでは見えない「どの画面のどの症状か」を、開いたときだけ出す */}
+        <CrossTable base={crossBase} filters={filters} onChange={onChange} />
       </Stack>
     </Base>
   );

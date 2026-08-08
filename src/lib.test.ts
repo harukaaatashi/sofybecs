@@ -3,6 +3,7 @@ import type { Item } from "./types";
 import {
   MIN_RATE_SAMPLE,
   applyFilters,
+  crossBreakdown,
   featureBreakdown,
   filtersFromSearch,
   filtersToSearch,
@@ -169,6 +170,52 @@ describe("breakdown", () => {
 
   it("どのテーマにも当たらない口コミはどこにも数えない", () => {
     expect(themeBreakdown(many(10, { topics: [] }))).toEqual([]);
+  });
+});
+
+describe("crossBreakdown", () => {
+  it("機能とテーマの交差に数える", () => {
+    const cross = crossBreakdown([
+      item({ features: ["設定"], topics: ["ログイン"], rating: 1 }),
+      item({ features: ["設定"], topics: ["ログイン"], rating: 5 }),
+    ]);
+    const cell = cross.rows
+      .find((r) => r.theme === "ログイン")
+      ?.cells.find((c) => c.feature === "設定");
+    expect(cell).toMatchObject({ total: 2, low: 1 });
+  });
+
+  it("複数タグを持つ口コミはすべての交差に数える", () => {
+    const cross = crossBreakdown([
+      item({ features: ["記録", "設定"], topics: ["通知", "ログイン"], rating: 1 }),
+    ]);
+    const cells = cross.rows.flatMap((r) => r.cells).filter((c) => c.low > 0);
+    expect(cells.length).toBe(4);
+  });
+
+  it("行と列は件数0でも消さない（表の形が絞り込みで変わらないため）", () => {
+    const cross = crossBreakdown([item({ features: ["記録"], topics: ["通知"] })]);
+    expect(cross.rows.length).toBe(10); // テーマ
+    expect(cross.rows[0].cells.length).toBe(9); // 機能
+  });
+
+  it("テーマに当たらない口コミは表に出さず、件数だけ別に返す", () => {
+    const cross = crossBreakdown([item({ features: ["記録"], topics: [] })]);
+    expect(cross.uncategorized).toBe(1);
+    expect(cross.rows.flatMap((r) => r.cells).every((c) => c.total === 0)).toBe(true);
+  });
+
+  it("最多セルは★1-2の件数で選ぶ", () => {
+    const cross = crossBreakdown([
+      ...Array.from({ length: 3 }, () => item({ features: ["記録"], topics: ["通知"], rating: 1 })),
+      ...Array.from({ length: 9 }, () => item({ features: ["設定"], topics: ["ログイン"], rating: 5 })),
+    ]);
+    expect(cross.top).toMatchObject({ feature: "記録", theme: "通知", low: 3 });
+    expect(cross.max).toBe(3);
+  });
+
+  it("★1-2が1件も無ければ最多セルは無い（濃淡の基準が作れないため）", () => {
+    expect(crossBreakdown([item({ features: ["記録"], topics: ["通知"], rating: 5 })]).top).toBeNull();
   });
 });
 

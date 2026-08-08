@@ -402,6 +402,81 @@ export function featureBreakdown(items: Item[]): FeatureStat[] {
     .sort((a, b) => b.rate - a.rate || b.total - a.total);
 }
 
+export type CrossCell = { feature: string; theme: string; label: string; total: number; low: number };
+export type CrossStat = {
+  /** 列（画面）。テーマ名より短いので、折り返さずに10列を1画面へ収められる */
+  features: ReadonlyArray<string>;
+  rows: Array<{ theme: string; label: string; cells: CrossCell[] }>;
+  /** 濃淡の基準にする★1-2件数の最大値 */
+  max: number;
+  /** 閉じているときに1行で見せる最多セル */
+  top: CrossCell | null;
+  /** どのテーマにも当たらず表に出ない件数（表の合計と一覧が食い違って見えるため明示する） */
+  uncategorized: number;
+};
+
+/**
+ * 機能（画面）× テーマ（症状）のクロス集計。
+ *
+ * 1軸のランキングは「記録の不満が多い」までしか言えず、それが何の症状なのかが見えない。
+ * 交差を見ると、全体では小さいテーマが特定の画面に集中している山が拾える。
+ *
+ * 率は出さない: 9×10=90セルの大半は母数10件未満で、率にすると少数で跳ねるため
+ * （MIN_RATE_SAMPLE の考え方をセル単位に適用すると、ほとんどが空欄になる）。
+ * 行・列は件数0でも落とさない（絞り込みのたびに表の形が変わると位置を見失う）。
+ */
+export function crossBreakdown(items: Item[]): CrossStat {
+  const counts = new Map<string, CrossCell>();
+  const cellKey = (feature: string, theme: string) => `${feature} ${theme}`;
+  for (const feature of FEATURES) {
+    for (const t of THEMES) {
+      counts.set(cellKey(feature, t.key), {
+        feature,
+        theme: t.key,
+        label: t.label,
+        total: 0,
+        low: 0,
+      });
+    }
+  }
+
+  let uncategorized = 0;
+  for (const d of items) {
+    const themes = themesOf(d);
+    if (!themes.length) {
+      uncategorized += 1;
+      continue;
+    }
+    const low = isLowRating(d);
+    for (const feature of featuresOf(d)) {
+      for (const theme of themes) {
+        const cell = counts.get(cellKey(feature, theme));
+        if (!cell) continue; // 定義から外れたタグは数えない
+        cell.total += 1;
+        if (low) cell.low += 1;
+      }
+    }
+  }
+
+  let max = 0;
+  let top: CrossCell | null = null;
+  for (const cell of counts.values()) {
+    if (cell.low > max) max = cell.low;
+    if (!top || cell.low > top.low) top = cell;
+  }
+  return {
+    features: FEATURES,
+    rows: THEMES.map((t) => ({
+      theme: t.key,
+      label: t.label,
+      cells: FEATURES.map((feature) => counts.get(cellKey(feature, t.key))!),
+    })),
+    max,
+    top: top && top.low > 0 ? top : null,
+    uncategorized,
+  };
+}
+
 /** 全体の★1-2率（機能別ランキングの比較基準） */
 export function lowRatingRate(items: Item[]): { total: number; low: number; rate: number } {
   const total = items.length;
