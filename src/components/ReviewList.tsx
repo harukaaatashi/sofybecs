@@ -11,7 +11,8 @@ import {
   TextLink,
 } from "smarthr-ui";
 import type { Item } from "../types";
-import { SOURCE_LABEL, stars } from "../lib";
+import { SOURCE_LABEL, itemToMarkdown, stars } from "../lib";
+import { CopyButton } from "./CopyButton";
 
 type Props = {
   data: Item[];
@@ -113,6 +114,14 @@ function ReviewCard({ item: d }: { item: Item }) {
           <TextLink href={d.url} target="_blank" rel="noopener" size="XS">
             開く
           </TextLink>
+          {/* hover 表示にするとタッチ端末で触れないので常時出す */}
+          <CopyButton
+            variant="text"
+            label="コピー"
+            ariaLabel="この口コミを Markdown でコピー"
+            getText={() => itemToMarkdown(d)}
+            className="card-copy"
+          />
         </Cluster>
         {d.title ? (
           <Text weight="bold" size="M">

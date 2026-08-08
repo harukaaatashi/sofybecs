@@ -89,6 +89,42 @@ export function applyFilters(items: Item[], f: Filters): Item[] {
   });
 }
 
+/* ---- Markdown 書き出し（読んだ声をドキュメントやSlackに貼るため） ------------ */
+
+/**
+ * 1件を「出典 → 引用 → 元URL」の順で組む。
+ * 引用だけ切り出すと出所をたどれなくなるので、必ず出典とURLを添える。
+ */
+export function itemToMarkdown(item: Item): string {
+  const meta = [
+    SOURCE_LABEL[item.source] || item.source,
+    // 貼り先では ★3 のほうが ★★★☆☆ より短く読み違えにくい
+    item.rating ? `★${item.rating}` : null,
+    item.version ? `v${item.version}` : null,
+    dayKey(item),
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const features = item.features?.length ? ` ・ ${item.features.join(" / ")}` : "";
+
+  // 見出しと本文の間を空行で割る。詰めると Markdown 上で1段落に繋がってしまう
+  const quoted = [item.title ? `**${item.title}**` : null, item.body]
+    .filter(Boolean)
+    .join("\n\n")
+    .split("\n")
+    .map((line) => `> ${line}`.trimEnd())
+    .join("\n");
+
+  return [`**${meta}**${features}`, quoted, `[口コミを開く](${item.url})`]
+    .filter(Boolean)
+    .join("\n");
+}
+
+/** 絞り込み結果をまとめて書き出す。先頭に何で絞った結果かを残す */
+export function itemsToMarkdown(items: Item[], heading: string): string {
+  return [`# ${heading}`, ...items.map(itemToMarkdown)].join("\n\n");
+}
+
 export function toggled<T>(set: Set<T>, value: T): Set<T> {
   const next = new Set(set);
   if (next.has(value)) next.delete(value);

@@ -101,6 +101,7 @@ export function App() {
           />
           <main className="results">
             <SummaryBar
+              data={data}
               total={items.length}
               shownCount={data.length}
               latestDate={latestDay || "-"}

@@ -1,16 +1,21 @@
 import { Button, Cluster, Text } from "smarthr-ui";
+import type { Item } from "../types";
 import {
   FEATURES,
   SOURCE_LABEL,
   formatCount,
   hasActiveFilter,
   hasPeriodFilter,
+  itemsToMarkdown,
   periodLabel,
   toggled,
   type Filters,
 } from "../lib";
+import { CopyButton } from "./CopyButton";
 
 type Props = {
+  /** 絞り込み結果。まとめてコピーの対象 */
+  data: Item[];
   total: number;
   shownCount: number;
   latestDate: string;
@@ -23,6 +28,7 @@ type Props = {
 
 /** 結果件数 + 適用中フィルターの削除可能ボタン + すべてクリア。sticky。 */
 export function SummaryBar({
+  data,
   total,
   shownCount,
   latestDate,
@@ -78,6 +84,21 @@ export function SummaryBar({
               : `${formatCount(total)} 件中 ${formatCount(shownCount)} 件`
           } ・ データ最終更新 ${latestDate}`}
       </Text>
+      {loadState === "ready" && shownCount > 0 && (
+        <CopyButton
+          variant="secondary"
+          label="Markdownでコピー"
+          ariaLabel={`絞り込み結果 ${formatCount(shownCount)} 件を Markdown でコピー`}
+          getText={() => {
+            // 何で絞った結果かを見出しに残す。貼り先で文脈が失われないように
+            const conditions = active.length ? `（${active.map((a) => a.label).join(" / ")}）` : "";
+            return itemsToMarkdown(
+              data,
+              `ソフィBe 口コミ${conditions} ${formatCount(shownCount)} 件 ・ データ最終更新 ${latestDate}`,
+            );
+          }}
+        />
+      )}
       {active.map((item) => (
         <Button
           key={item.label}

@@ -262,6 +262,17 @@ body {
   contain-intrinsic-size: auto 120px;
 }
 .card-meta { font-variant-numeric: tabular-nums; }
+/* 200枚のカード全部に出すと一覧が騒がしくなるので、必要なときだけ姿を見せる。
+   opacity なので支援技術とキーボードからは常に到達できる（focus-within で可視化）。 */
+/* 「開く」と並ぶ軽さに落とす。太字のままだと本文よりボタンが目立つ */
+.card-copy, .card-copy * { font-weight: 400; }
+.card-copy { padding: 2px 6px; color: var(--color-text-secondary); opacity: 0; transition: opacity .15s; }
+.card:hover .card-copy,
+.card:focus-within .card-copy { opacity: 1; }
+/* hover のないタッチ端末では隠すと触れないので常時表示 */
+@media (hover: none) {
+  .card-copy { opacity: 1; }
+}
 .stars { color: var(--color-star); letter-spacing: 1px; }
 
 .empty-panel { text-align: center; }
