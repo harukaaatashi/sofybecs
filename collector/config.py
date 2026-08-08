@@ -26,8 +26,12 @@ RECLASSIFY = os.environ.get("RECLASSIFY", "") == "1"
 MAX_POSTS_PER_RUN = int(os.environ.get("MAX_POSTS_PER_RUN", "20"))
 # 初回実行（state が空）のとき、過去分は何件だけ流すか
 FIRST_RUN_POSTS_PER_SOURCE = int(os.environ.get("FIRST_RUN_POSTS_PER_SOURCE", "3"))
-# 連続アクセスを避けるための最短実行間隔。0 で無効化
-MIN_COLLECT_INTERVAL_HOURS = int(os.environ.get("MIN_COLLECT_INTERVAL_HOURS", "24"))
+# 連続アクセスを避けるガード。同じJSTの日に2回目は走らせない。0 で無効化。
+# 「前回から24時間」ではなく日付で見るのは、cron の遅れが翌日の判定に持ち越されて
+# 1日分の収集が丸ごと飛ぶのを防ぐため（実測: 21:45Z → 00:59Z と遅れると次回が20.5時間後になる）
+COLLECT_ONCE_PER_DAY = os.environ.get("COLLECT_ONCE_PER_DAY", "1") != "0"
+# 「1日」の境界。JST（UTC+9）で数える
+COLLECT_DAY_OFFSET_HOURS = 9
 
 STATE_FILE = os.environ.get("STATE_FILE", "state/seen.json")
 # 各ソースで記憶しておく既読IDの上限

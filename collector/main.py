@@ -28,26 +28,41 @@ def _parse_iso8601(value: str) -> datetime | None:
         return None
 
 
-def _should_skip_run(state: dict) -> tuple[bool, str]:
-    if config.FORCE_RUN or config.MIN_COLLECT_INTERVAL_HOURS <= 0:
+def _day_key(moment: datetime) -> str:
+    """JST（UTC+9）での日付。1日1回のガードはこの単位で数える。"""
+    # タイムゾーンなしで保存された値はUTCとみなす（実行環境のローカル時刻に引きずられないため）
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=timezone.utc)
+    jst = timezone(timedelta(hours=config.COLLECT_DAY_OFFSET_HOURS))
+    return moment.astimezone(jst).date().isoformat()
+
+
+def _should_skip_run(state: dict, now: datetime | None = None) -> tuple[bool, str]:
+    """同じJSTの日にすでに収集していればスキップする。
+
+    「前回から24時間」で見ていた頃は、GitHub Actions の cron が遅れるたびに
+    翌日の実行が24時間未満に収まってスキップされ、その遅れが次の判定にも
+    持ち越されて1日分の収集が静かに飛んでいた。日付で見ればこれが起きない。
+    """
+    if config.FORCE_RUN or not config.COLLECT_ONCE_PER_DAY:
         return False, ""
     last_run_at = _parse_iso8601(state.get("_meta", {}).get("last_run_at", ""))
     if not last_run_at:
         return False, ""
-    next_run_at = last_run_at + timedelta(hours=config.MIN_COLLECT_INTERVAL_HOURS)
-    now = datetime.now(timezone.utc)
-    if now < next_run_at:
-        return True, next_run_at.isoformat()
+    now = now or datetime.now(timezone.utc)
+    last_day = _day_key(last_run_at)
+    if last_day == _day_key(now):
+        return True, last_day
     return False, ""
 
 
 def run() -> int:
     state = state_mod.load()
-    skip, next_run_at = _should_skip_run(state)
+    skip, last_day = _should_skip_run(state)
     if skip:
         print(
-            "[guard] 直近で収集済みのためスキップ"
-            f"（次回目安: {next_run_at} / FORCE_RUN=1 で上書き）"
+            f"[guard] {last_day}（JST）にすでに収集済みのためスキップ"
+            "（FORCE_RUN=1 で上書き）"
         )
         return 0
     collected: list[Item] = []

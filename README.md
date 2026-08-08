@@ -22,7 +22,8 @@ App Store + Google Play だけで動きます。
 - App Store は Apple の公式RSSを利用
 - Google Play は現状 `google-play-scraper` を利用するため、App Store より規約・安定性の面でグレー寄り
 - X は収集対象から外している
-- そのため、短時間の再実行を避けるガードとして `MIN_COLLECT_INTERVAL_HOURS` のデフォルトを `24` にしている
+- そのため、短時間の再実行を避けるガードとして `COLLECT_ONCE_PER_DAY` を既定で有効にし、同じJSTの日には2回目を走らせない（`0` で無効化）
+  - 以前は「前回実行から24時間」で判定していたが、GitHub Actions の cron が遅れると翌日の実行が24時間未満に収まってスキップされ、その遅れが次の判定にも持ち越されて1日分の収集が静かに飛んでいた。日付で見ることで、上限は1日1回のまま取りこぼしだけを止めている
 - `GOOGLE_PLAY_ENABLED=0` を指定すると、Google Play 収集を簡単に止められる
 - `FORCE_RUN=1` を指定したときだけ、実行間隔ガードを上書きできる
 - 公開サイトはデフォルトで無効。GitHub Pages は `ENABLE_PUBLIC_SITE=1` を明示したときだけ配信する
@@ -35,6 +36,7 @@ Google Play には、アプリ所有者向けの公式な Google Play Developer 
 ```
 GitHub Actions (cron)
   → collector/main.py
+      ├ 実行ガード              … 同じJSTの日にすでに収集していればスキップ（FORCE_RUN=1 で上書き）
       ├ sources/app_store.py    … RSSフィードから最新レビュー取得
       ├ sources/google_play.py  … 最新レビュー取得
       ├ features.py             … 2軸のタグ分類
@@ -87,6 +89,13 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 DRY_RUN=1 .venv/bin/python -m collector.main   # Slackに投げず標準出力に表示
 ```
 
+ガードの回帰テスト:
+
+```sh
+.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python -m pytest tests/test_run_guard.py
+```
+
 閲覧ページ（React + smarthr-ui、`src/`）:
 
 ```sh
@@ -111,6 +120,6 @@ npm run build                            # INTERNAL_SITE_EXPORT なし → 案�
 | `FORCE_RUN` | `1` で最短実行間隔ガードを無視して実行 | なし |
 | `MAX_POSTS_PER_RUN` | 1回の実行で通知する最大件数 | 20 |
 | `FIRST_RUN_POSTS_PER_SOURCE` | 初回実行時に通知する件数/ソース | 3 |
-| `MIN_COLLECT_INTERVAL_HOURS` | 連続実行を避ける最短間隔。`0` で無効化 | 24 |
+| `COLLECT_ONCE_PER_DAY` | 同じJSTの日に2回目を走らせない。`0` で無効化 | `1` |
 | `GOOGLE_PLAY_FETCH_COUNT` | Google Play で取りにいく最大件数 | 50 |
 | `INTERNAL_SITE_EXPORT` | `1` のときだけ静的サイトに実データを書き出す | なし |
