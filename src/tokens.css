@@ -31,3 +31,41 @@
   --shadow-base: 0 2px 8px rgba(0, 0, 0, 0.12);   /* Shadow.Base = #000 / 12% */
   --shadow-panel: 0 8px 24px rgba(0, 0, 0, 0.12); /* Shadow.Base をパネル用に拡張 */
 }
+
+/* smarthr-ui v97 ブリッジ（DESIGN.md §2）
+   v97 は色を Tailwind ユーティリティに焼き込んでおり、`createTheme` の MAIN が
+   チェック状態やフォーカスリングに届かず SmartHR ブランド青（#0077c7）のまま出る。
+   該当ユーティリティだけを Accent.Primary に差し替える。
+   main.tsx で smarthr-ui.css より後に読み込むため、同一詳細度でこちらが勝つ。 */
+.shr-peer:checked ~ [class*="peer-checked:shr-bg-main"],
+.shr-peer:indeterminate ~ [class*="peer-indeterminate:shr-bg-main"],
+[class*="has-[:checked]:shr-bg-main"]:has(:checked),
+.shr-bg-main {
+  background-color: var(--color-accent-primary);
+}
+.shr-peer:checked ~ [class*="peer-checked:shr-border-main"],
+.shr-peer:indeterminate ~ [class*="peer-indeterminate:shr-border-main"],
+[class*="has-[:checked]:shr-border-"]:has(:checked),
+.shr-border-main {
+  border-color: var(--color-accent-primary);
+}
+.shr-text-main { color: var(--color-accent-primary); }
+/* リンク色も SmartHR 青（#0071c1）が焼き込まれているため独自トークンに寄せる */
+.shr-text-link { color: var(--color-text-link); }
+.shr-fill-main { fill: var(--color-accent-primary); }
+
+/* フォーカスリング。元は :where() で詳細度0のため、色だけ上書きすれば足りる */
+[class*="shr-focus-indicator"] { outline-color: var(--color-accent-primary); }
+
+/* smarthr-ui の既定パレットは暖色寄りのグレー（#23221e / #706d65 / #d6d3d0）。
+   ソフィBe は寒色寄りのグレーなので、地の文・補助テキスト・罫線も合わせる。 */
+.shr-text-black, .shr-fill-black { color: var(--color-text-primary); }
+.shr-fill-black { fill: var(--color-text-primary); }
+.shr-text-grey, .shr-fill-grey { color: var(--color-text-secondary); }
+.shr-fill-grey { fill: var(--color-text-secondary); }
+.placeholder\:shr-text-grey::placeholder { color: var(--color-text-placeholder); }
+.shr-border-shorthand, .shr-border-default { border-color: var(--color-border); }
+.shr-border-t-shorthand { border-top-color: var(--color-border); }
+.shr-border-r-shorthand { border-right-color: var(--color-border); }
+.shr-border-b-shorthand { border-bottom-color: var(--color-border); }
+.shr-border-l-shorthand { border-left-color: var(--color-border); }

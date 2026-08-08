@@ -1,4 +1,5 @@
 import { Button, Checkbox, Cluster, Fieldset, RadioButton, Stack, Text } from "smarthr-ui";
+import { formatCount } from "../lib";
 
 export type FilterOption = {
   value: string | number;
@@ -53,7 +54,7 @@ export function FilterGroup({
             <Cluster gap="XXS" align="baseline" as="span">
               <span>{option.label}</span>
               <Text size="XS" color="TEXT_GREY" className="filter-count">
-                {option.count}
+                {formatCount(option.count)}
               </Text>
             </Cluster>
           );

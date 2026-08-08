@@ -16,7 +16,9 @@ import { SOURCE_LABEL, stars } from "../lib";
 type Props = {
   data: Item[];
   shown: number;
+  hasFilter: boolean;
   onMore: () => void;
+  onClear: () => void;
 };
 
 type DateGroup = { date: string; items: Item[] };
@@ -33,13 +35,21 @@ function groupByDate(items: Item[]): DateGroup[] {
 }
 
 /** 日付ごとに Section+Heading でグルーピングした口コミ一覧 + ページング。 */
-export function ReviewList({ data, shown, onMore }: Props) {
+export function ReviewList({ data, shown, hasFilter, onMore, onClear }: Props) {
   const groups = useMemo(() => groupByDate(data.slice(0, shown)), [data, shown]);
 
   if (!data.length) {
     return (
       <Base layer={0} radius="m" padding="L" className="empty-panel">
-        <Text color="TEXT_GREY">条件に合う口コミがありません</Text>
+        <Stack gap="S" align="center" as="div">
+          <Text color="TEXT_GREY">条件に合う口コミがありません</Text>
+          {/* 行き止まりにせず、その場から絞り込みを戻せるようにする */}
+          {hasFilter && (
+            <Button variant="secondary" size="S" onClick={onClear}>
+              絞り込みをクリア
+            </Button>
+          )}
+        </Stack>
       </Base>
     );
   }
@@ -54,7 +64,8 @@ export function ReviewList({ data, shown, onMore }: Props) {
             </Heading>
             <Stack gap="XS">
               {group.items.map((d) => (
-                <ReviewCard key={d.id} item={d} />
+                // id は App Store と Google Play で衝突しうるので source と組み合わせる
+                <ReviewCard key={`${d.source}:${d.id}`} item={d} />
               ))}
             </Stack>
           </Stack>

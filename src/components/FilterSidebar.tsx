@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button, SearchInput, Stack } from "smarthr-ui";
 import type { Item } from "../types";
 import {
   FEATURES,
+  PERIOD_PRESETS,
   SOURCE_LABEL,
   VERSION_LIMIT,
   activeFilterCount,
+  activePeriodPreset,
+  applyFilters,
+  dayKey,
   hasActiveFilter,
+  periodRange,
   toggled,
   verKey,
   type Filters,
@@ -17,34 +22,73 @@ type Props = {
   items: Item[];
   filters: Filters;
   versions: string[];
+  /** データ内の最新レビュー日。「直近N日」の基準日に使う */
+  latestDay: string;
   onChange: (next: Filters) => void;
   onClear: () => void;
 };
 
-export function FilterSidebar({ items, filters, versions, onChange, onClear }: Props) {
+export function FilterSidebar({
+  items,
+  filters,
+  versions,
+  latestDay,
+  onChange,
+  onClear,
+}: Props) {
   const [open, setOpen] = useState(false); // モバイルの絞り込み開閉
   const [versionExpanded, setVersionExpanded] = useState(false);
   const active = hasActiveFilter(filters);
   const activeCount = activeFilterCount(filters);
 
+  /**
+   * 件数は「その選択肢を選んだら何件になるか」を示す。
+   * 自分の群の条件だけ外した結果を母集団にする（他の絞り込みは効かせる）ため、
+   * 表示中の件数と食い違わない。
+   */
+  const base = useMemo(() => {
+    const without = (patch: Partial<Filters>) => applyFilters(items, { ...filters, ...patch });
+    return {
+      period: without({ from: "", to: "" }),
+      source: without({ source: "all" }),
+      ratings: without({ ratings: new Set<number>() }),
+      features: without({ features: new Set<string>() }),
+      versions: without({ versions: new Set<string>() }),
+    };
+  }, [items, filters]);
+
   const sourceCounts: Record<string, number> = {};
-  for (const d of items) sourceCounts[d.source] = (sourceCounts[d.source] || 0) + 1;
+  for (const d of base.source) sourceCounts[d.source] = (sourceCounts[d.source] || 0) + 1;
 
   const ratingCounts: Record<number, number> = {};
-  for (const d of items) if (d.rating) ratingCounts[d.rating] = (ratingCounts[d.rating] || 0) + 1;
+  for (const d of base.ratings)
+    if (d.rating) ratingCounts[d.rating] = (ratingCounts[d.rating] || 0) + 1;
 
   const featCounts: Record<string, number> = {};
-  for (const d of items)
-    for (const f of d.features || ["その他"]) featCounts[f] = (featCounts[f] || 0) + 1;
+  for (const d of base.features)
+    for (const f of d.features?.length ? d.features : ["その他"])
+      featCounts[f] = (featCounts[f] || 0) + 1;
 
   const verCounts: Record<string, number> = {};
-  for (const d of items) verCounts[verKey(d)] = (verCounts[verKey(d)] || 0) + 1;
+  for (const d of base.versions) verCounts[verKey(d)] = (verCounts[verKey(d)] || 0) + 1;
 
+  const periodOptions = PERIOD_PRESETS.map((p) => {
+    const { from } = periodRange(p.value, latestDay);
+    return {
+      value: p.value,
+      label: p.label,
+      count: from ? base.period.filter((d) => dayKey(d) >= from).length : base.period.length,
+    };
+  });
+
+  // 件数0でも選択肢は消さない（絞り込みのたびに項目が出入りすると位置を見失う）
   const sourceOptions = [
-    { value: "all", label: "すべて", count: items.length },
-    ...(["app_store", "google_play"] as const)
-      .filter((key) => sourceCounts[key])
-      .map((key) => ({ value: key, label: SOURCE_LABEL[key], count: sourceCounts[key] })),
+    { value: "all", label: "すべて", count: base.source.length },
+    ...(["app_store", "google_play"] as const).map((key) => ({
+      value: key,
+      label: SOURCE_LABEL[key],
+      count: sourceCounts[key] || 0,
+    })),
   ];
 
   const clearButton = (extraClass: string) =>
@@ -84,6 +128,16 @@ export function FilterSidebar({ items, filters, versions, onChange, onClear }: P
         <div className={"filter-body" + (open ? " open" : "")} id="filter-body">
           <Stack gap="M" as="div">
             <FilterGroup
+              legend="期間"
+              type="radio"
+              name="period"
+              options={periodOptions}
+              selectedValues={[activePeriodPreset(filters, latestDay)]}
+              onToggle={(value) =>
+                onChange({ ...filters, ...periodRange(String(value), latestDay) })
+              }
+            />
+            <FilterGroup
               legend="ソース"
               type="radio"
               name="source"
@@ -122,7 +176,7 @@ export function FilterSidebar({ items, filters, versions, onChange, onClear }: P
               options={versions.map((v) => ({
                 value: v,
                 label: v === "不明" ? v : `v${v}`,
-                count: verCounts[v],
+                count: verCounts[v] || 0,
               }))}
               selectedValues={[...filters.versions]}
               onToggle={(value) =>

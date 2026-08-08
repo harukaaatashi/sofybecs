@@ -1,5 +1,14 @@
 import { Button, Cluster, Text } from "smarthr-ui";
-import { FEATURES, SOURCE_LABEL, hasActiveFilter, toggled, type Filters } from "../lib";
+import {
+  FEATURES,
+  SOURCE_LABEL,
+  formatCount,
+  hasActiveFilter,
+  hasPeriodFilter,
+  periodLabel,
+  toggled,
+  type Filters,
+} from "../lib";
 
 type Props = {
   total: number;
@@ -24,6 +33,12 @@ export function SummaryBar({
   onClear,
 }: Props) {
   const active: Array<{ label: string; remove: () => void }> = [];
+  if (hasPeriodFilter(filters)) {
+    active.push({
+      label: periodLabel(filters, latestDate),
+      remove: () => onChange({ ...filters, from: "", to: "" }),
+    });
+  }
   if (filters.source !== "all") {
     active.push({
       label: SOURCE_LABEL[filters.source],
@@ -55,13 +70,19 @@ export function SummaryBar({
       <Text size="S" color="TEXT_GREY" aria-live="polite" className="summary-count">
         {loadState === "loading" && "読み込み中…"}
         {loadState === "error" && "データの読み込みに失敗しました"}
+        {/* 絞り込みなしのときに「1241 件中 1241 件」と繰り返さない */}
         {loadState === "ready" &&
-          `全 ${total} 件中 ${shownCount} 件を表示 ・ 最新の口コミ日: ${latestDate}`}
+          `${
+            shownCount === total
+              ? `${formatCount(total)} 件`
+              : `${formatCount(total)} 件中 ${formatCount(shownCount)} 件`
+          } ・ データ最終更新 ${latestDate}`}
       </Text>
       {active.map((item) => (
         <Button
           key={item.label}
-          variant="skeleton"
+          // skeleton は暗背景用（白文字）で明るい地では読めない。secondary で枠付きにする
+          variant="secondary"
           size="S"
           suffix={<span aria-hidden="true">×</span>}
           aria-label={`${item.label} の絞り込みを解除`}
