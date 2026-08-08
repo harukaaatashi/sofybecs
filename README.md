@@ -89,11 +89,12 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 DRY_RUN=1 .venv/bin/python -m collector.main   # Slackに投げず標準出力に表示
 ```
 
-ガードの回帰テスト:
+テスト（push / PR で GitHub Actions も回します）:
 
 ```sh
 .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/python -m pytest tests/test_run_guard.py
+.venv/bin/python -m pytest   # 収集バッチ（実行ガード・分類・蓄積）
+npm test                     # 閲覧ページ（集計・絞り込みロジック）
 ```
 
 閲覧ページ（React + smarthr-ui、`src/`）:

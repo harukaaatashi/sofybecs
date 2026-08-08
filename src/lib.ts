@@ -69,6 +69,10 @@ export const dayKey = (item: Item): string => (item.created_at || "").slice(0, 1
 
 export const isLowRating = (item: Item): boolean => item.rating != null && item.rating <= 2;
 
+/** 機能タグ。無い口コミは「その他」に寄せる（絞り込みと集計で同じ規則を使う） */
+export const featuresOf = (item: Item): string[] =>
+  item.features?.length ? item.features : ["その他"];
+
 /** "4.16"(iOS) と "4.16.0"(Android) を同じリリースに束ねる */
 export const verKey = (item: Item): string => {
   const v = (item.version || "").trim();
@@ -127,7 +131,9 @@ export function applyFilters(items: Item[], f: Filters): Item[] {
     if (f.source !== "all" && d.source !== f.source) return false;
     if (f.ratings.size && !(d.rating != null && f.ratings.has(d.rating))) return false;
     if (f.versions.size && !f.versions.has(verKey(d))) return false;
-    if (f.features.size && !(d.features || ["その他"]).some((x) => f.features.has(x))) return false;
+    // 空配列も「その他」扱い。featureBreakdown と同じ規則にしないと、
+    // 「その他」の行が示す件数と、その行を押した一覧の件数が食い違う
+    if (f.features.size && !featuresOf(d).some((x) => f.features.has(x))) return false;
     if (f.themes.size && !themesOf(d).some((x) => f.themes.has(x))) return false;
     if (words.length) {
       const text = `${d.title || ""} ${d.body || ""} ${d.author || ""}`.toLowerCase();
@@ -383,7 +389,7 @@ export type FeatureStat = { feature: string; total: number; low: number; rate: n
 export function featureBreakdown(items: Item[]): FeatureStat[] {
   const counts = new Map<string, FeatureStat>();
   for (const d of items) {
-    for (const f of d.features?.length ? d.features : ["その他"]) {
+    for (const f of featuresOf(d)) {
       const stat = counts.get(f) || { feature: f, total: 0, low: 0, rate: 0 };
       stat.total += 1;
       if (isLowRating(d)) stat.low += 1;
